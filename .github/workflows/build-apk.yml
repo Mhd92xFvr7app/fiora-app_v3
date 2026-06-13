@@ -1,0 +1,66 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install Cordova
+        run: npm install -g cordova
+      - name: Build APK
+        run: |
+          cordova create app com.fiora.app فيورا
+          cp "فيورا-fixed.html" app/www/index.html
+          cp logo_512x512.png app/www/logo_512x512.png
+          mkdir -p app/res/screen
+          cp splash.png app/res/screen/splash.png
+          cd app
+          cat > config.xml << 'EOF'
+          <?xml version='1.0' encoding='utf-8'?>
+          <widget id="com.fiora.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets">
+            <name>فيورا</name>
+            <description>تطبيق فيورا للتواصل الاجتماعي</description>
+            <author>Fiora</author>
+            <content src="index.html" />
+            <icon src="../logo_512x512.png" />
+            <platform name="android">
+              <icon src="../logo_512x512.png" density="xxxhdpi" />
+              <splash src="res/screen/splash.png" density="land-hdpi" />
+              <splash src="res/screen/splash.png" density="land-ldpi" />
+              <splash src="res/screen/splash.png" density="land-mdpi" />
+              <splash src="res/screen/splash.png" density="land-xhdpi" />
+              <splash src="res/screen/splash.png" density="land-xxhdpi" />
+              <splash src="res/screen/splash.png" density="land-xxxhdpi" />
+              <splash src="res/screen/splash.png" density="port-hdpi" />
+              <splash src="res/screen/splash.png" density="port-ldpi" />
+              <splash src="res/screen/splash.png" density="port-mdpi" />
+              <splash src="res/screen/splash.png" density="port-xhdpi" />
+              <splash src="res/screen/splash.png" density="port-xxhdpi" />
+              <splash src="res/screen/splash.png" density="port-xxxhdpi" />
+              <preference name="SplashScreenDelay" value="1500" />
+              <preference name="AutoHideSplashScreen" value="true" />
+              <preference name="SplashShowOnlyFirstTime" value="false" />
+              <preference name="SplashMaintainAspectRatio" value="true" />
+            </platform>
+            <plugin name="cordova-plugin-splashscreen" spec="^6.0.2" />
+            <preference name="Orientation" value="portrait" />
+          </widget>
+          EOF
+          cordova platform add android
+          cordova plugin add cordova-plugin-splashscreen
+          cordova build android
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fiora-apk
+          path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
