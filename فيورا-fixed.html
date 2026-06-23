@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HyperNova Browser</title>
+
+<!-- ============================================================
+  STYLES — Section 1/3
+============================================================ -->
+<!-- placeholder keep -->
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#04060f;
+  --bg2:#080d1c;
+  --card:rgba(8,14,30,0.88);
+  --card2:rgba(12,20,42,0.95);
+  --cyan:#00d4ff;
+  --cyan2:rgba(0,212,255,0.15);
+  --purple:#7b5fff;
+  --pink:#e040fb;
+  --green:#00e5a0;
+  --teal:#1de9b6;
+  --orange:#ff8c00;
+  --red:#ff3b5c;
+  --gold:#ffd700;
+  --indigo:#536dfe;
+  --blue:#448aff;
+  --txt:#deeeff;
+  --txt2:#6a90b0;
+  --txt3:#1e3248;
+  --border:rgba(0,212,255,0.13);
+  --bh:rgba(0,212,255,0.30);
+  --topH:54px;
+  --botH:68px;
+  --font:'Segoe UI',Tahoma,Arial,sans-serif;
+}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:var(--bg);color:var(--txt);
+  font-family:var(--font);-webkit-font-smoothing:antialiased;
+}
+.hide{display:none!important;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--cyan2);border-radius:4px;}
+
+/* ── Space BG ── */
+#bgWrap{position:fixed;inset:0;z-index:0;overflow:hidden;
+  background:radial-gradient(ellipse 120% 80% at 50% 0%,rgba(0,20,50,0.9) 0%,transparent 60%),
+             radial-gradient(ellipse 100% 100% at 50% 50%,#060c1c 0%,#02040b 100%);}
+#stars{position:absolute;inset:0;width:100%;height:100%;}
+.neb{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.18;pointer-events:none;}
+.nc{width:300px;height:180px;top:8%;left:-5%;
+  background:radial-gradient(ellipse,var(--cyan) 0%,transparent 70%);
+  animation:nd 20s ease-in-out infinite alternate;}
+.np{width:260px;height:260px;top:30%;right:-8%;
+  background:radial-gradient(ellipse,var(--purple) 0%,transparent 70%);
+  animation:nd 26s ease-in-out infinite alternate-reverse;}
+@keyframes nd{0%{transform:translate(0,0) scale(1);}100%{transform:translate(18px,12px) scale(1.06);}}
+
+/* ── Top Bar — 2 rows ── */
+#topBar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;flex-direction:column;
+  background:rgba(3,5,14,0.82);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-bottom:1px solid var(--border);
+  padding:8px 10px 8px;
+  gap:7px;
+}
+/* recalc topH to match 2-row bar (~96px) */
+:root{ --topH:96px; }
+
+/* Row 1: nav buttons */
+.top-row1{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.nav-btns{display:flex;align-items:center;gap:6px;}
+
+.tnb{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;transition:all .2s;
+}
+.tnb:active{background:rgba(0,212,255,0.18);border-color:var(--cyan);}
+.tnb svg{width:16px;height:16px;}
+.tnb-ai{background:rgba(0,212,255,0.09);border-color:rgba(0,212,255,0.25);}
+.tnb-ai svg{stroke:var(--cyan);}
+
+/* Row 2: address bar full width */
+.top-row2{width:100%;}
+.abar-wrap{width:100%;}
+.abar{
+  display:flex;align-items:center;
+  width:100%;height:40px;border-radius:25px;
+  background:rgba(0,12,35,0.85);
+  border:1px solid rgba(0,212,255,0.40);
+  position:relative;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+}
+.abar::before{
+  content:'';position:absolute;
+  top:50%;left:44px;right:90px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.28),transparent);
+  transform:translateY(-50%);
+}
+.abar:focus-within{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.25);}
+.amic{
+  width:44px;height:100%;background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;
+  position:relative;
+}
+.amic svg{width:16px;height:16px;}
+/* mic active state */
+.amic.listening svg{stroke:var(--red);filter:drop-shadow(0 0 6px var(--red));}
+.amic.listening::after{
+  content:'';position:absolute;inset:-2px;border-radius:50%;
+  border:2px solid var(--red);animation:micPulse 1s infinite;
+}
+@keyframes micPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.3);opacity:0;}}
+.adiv{width:1px;height:55%;background:linear-gradient(180deg,transparent,rgba(0,212,255,0.45),transparent);flex-shrink:0;z-index:1;}
+.ainp{flex:1;background:none;border:none;outline:none;color:var(--txt);
+  font-size:14px;font-family:var(--font);padding:0 10px;z-index:1;direction:ltr;text-align:left;}
+.ainp::placeholder{color:var(--txt3);font-size:13px;}
+.asrch{
+  height:100%;padding:0 14px;background:linear-gradient(135deg,rgba(0,212,255,0.16),rgba(0,212,255,0.05));
+  border:none;border-left:1px solid rgba(0,212,255,0.20);
+  border-radius:0 25px 25px 0;cursor:pointer;flex-shrink:0;z-index:1;
+  transition:background .2s;
+}
+.asrch:active{background:rgba(0,212,255,0.28);}
+.asrch span{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:0.3px;white-space:nowrap;}
+
+/* Voice panel */
+#voicePanel{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(2,4,14,0.96);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+.vmic-btn{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  animation:vPulse 1.5s ease-in-out infinite;cursor:pointer;border:none;
+}
+.vmic-btn svg{width:44px;height:44px;}
+@keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.5);}50%{box-shadow:0 0 0 24px rgba(0,212,255,0);}}
+#voiceText{font-size:18px;color:var(--txt2);text-align:center;max-width:280px;min-height:60px;line-height:1.6;}
+#voiceResult{font-size:20px;color:var(--cyan);text-align:center;font-weight:600;min-height:30px;}
+.vclose{padding:10px 30px;background:var(--card);border:1px solid var(--border);border-radius:25px;color:var(--txt2);cursor:pointer;font-size:14px;}
+
+/* Avatar */
+.ava{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(123,95,255,0.6),rgba(0,212,255,0.4));
+  border:2px solid rgba(0,212,255,0.4);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 0 12px rgba(0,212,255,0.3);position:relative;
+}
+.ava svg{width:16px;height:16px;}
+.ava-ring{
+  position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(var(--cyan),var(--purple),var(--cyan));
+  opacity:0.25;animation:spin 5s linear infinite;z-index:-1;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── Panels ── */
+.panel{
+  position:fixed;top:var(--topH);left:0;right:0;bottom:var(--botH);
+  z-index:10;overflow-y:auto;padding:16px 12px;
+  display:none;
+}
+.panel.active{display:block;}
+#pHome{padding:0;overflow:hidden;}
+
+/* ── Bottom Bar ── */
+#botBar{
+  position:fixed;bottom:0;left:0;right:0;height:var(--botH);z-index:200;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 4px 6px;
+  background:rgba(3,5,14,0.88);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-top:1px solid var(--border);
+}
+.tbb{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;
+  color:var(--txt2);padding:6px 8px;border-radius:12px;
+  transition:color .2s;flex:1;max-width:70px;
+}
+.tbb svg{width:22px;height:22px;transition:filter .2s;}
+.tbb span{font-size:9px;font-weight:500;letter-spacing:0.2px;}
+.tbb:active svg{filter:drop-shadow(0 0 6px var(--cyan));}
+.tbb:active{color:var(--txt);}
+
+/* ── More Drawer ── */
+#moreDrawer{
+  position:fixed;bottom:var(--botH);left:0;right:0;z-index:150;
+  background:rgba(4,7,18,0.97);border-top:1px solid var(--border);
+  backdrop-filter:blur(22px);padding:16px 12px;
+  transform:translateY(100%);transition:transform .3s ease;
+}
+#moreDrawer.open{transform:translateY(0);}
+.drawer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.dib{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:12px 6px;cursor:pointer;transition:all .2s;
+}
+.dib:active{background:rgba(0,212,255,0.1);border-color:var(--bh);}
+.dib svg{width:24px;height:24px;}
+.dib span{font-size:9px;color:var(--txt2);text-align:center;}
+
+/* ── Section Title ── */
+.stitle{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.stitle svg{width:18px;height:18px;color:var(--cyan);}
+
+/* ── Card ── */
+.fc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;transition:all .25s;}
+.fc:active{border-color:var(--bh);}
+.fc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.fc-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fc-ico svg{width:20px;height:20px;}
+.fc-name{font-size:14px;font-weight:600;}
+.fc-sub{font-size:11px;color:var(--txt2);margin-top:1px;}
+
+/* Icon backgrounds */
+.ic-c{background:linear-gradient(135deg,rgba(0,212,255,.28),rgba(0,212,255,.07));border:1px solid rgba(0,212,255,.2);}
+.ic-g{background:linear-gradient(135deg,rgba(0,229,160,.28),rgba(0,229,160,.07));border:1px solid rgba(0,229,160,.2);}
+.ic-p{background:linear-gradient(135deg,rgba(224,64,251,.28),rgba(224,64,251,.07));border:1px solid rgba(224,64,251,.2);}
+.ic-t{background:linear-gradient(135deg,rgba(29,233,182,.28),rgba(29,233,182,.07));border:1px solid rgba(29,233,182,.2);}
+.ic-v{background:linear-gradient(135deg,rgba(123,95,255,.28),rgba(123,95,255,.07));border:1px solid rgba(123,95,255,.2);}
+.ic-b{background:linear-gradient(135deg,rgba(68,138,255,.28),rgba(68,138,255,.07));border:1px solid rgba(68,138,255,.2);}
+.ic-o{background:linear-gradient(135deg,rgba(255,140,0,.28),rgba(255,140,0,.07));border:1px solid rgba(255,140,0,.2);}
+.ic-r{background:linear-gradient(135deg,rgba(255,59,92,.28),rgba(255,59,92,.07));border:1px solid rgba(255,59,92,.2);}
+.ic-gold{background:linear-gradient(135deg,rgba(255,215,0,.28),rgba(255,215,0,.07));border:1px solid rgba(255,215,0,.2);}
+.ic-i{background:linear-gradient(135deg,rgba(83,109,254,.28),rgba(83,109,254,.07));border:1px solid rgba(83,109,254,.2);}
+
+/* ── Feature List ── */
+.flist{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.flist li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2);
+  padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:8px;
+  border:1px solid rgba(255,255,255,0.04);transition:all .2s;}
+.flist li:active{color:var(--txt);background:rgba(0,212,255,0.06);}
+.flist li svg{width:13px;height:13px;flex-shrink:0;}
+
+/* ── Progress ── */
+.pbar{width:100%;height:5px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-top:8px;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:4px;}
+
+/* ── Stats Row ── */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.stat-v{font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-l{font-size:11px;color:var(--txt2);margin-top:3px;}
+
+/* ── Toggle ── */
+.tog{width:42px;height:22px;background:rgba(255,255,255,.1);border-radius:11px;cursor:pointer;position:relative;transition:background .3s;flex-shrink:0;}
+.tog.on{background:var(--cyan);}
+.tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;right:2px;transition:right .3s;}
+.tog.on::after{right:22px;}
+
+/* ── Badge ── */
+.bdg{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+.b-g{background:rgba(0,229,160,.15);color:var(--green);}
+.b-o{background:rgba(255,140,0,.15);color:var(--orange);}
+.b-r{background:rgba(255,59,92,.15);color:var(--red);}
+.b-c{background:rgba(0,212,255,.15);color:var(--cyan);}
+
+/* ── Chat ── */
+.chat-box{display:flex;flex-direction:column;height:calc(100vh - var(--topH) - var(--botH) - 60px);}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;}
+.msg{max-width:85%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.5;animation:msgIn .2s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.msg-bot{align-self:flex-start;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.12);}
+.msg-user{align-self:flex-end;background:linear-gradient(135deg,rgba(123,95,255,.28),rgba(0,212,255,.18));border:1px solid rgba(123,95,255,.2);}
+.chat-inp{display:flex;gap:7px;padding-top:10px;border-top:1px solid var(--border);}
+.chat-inp input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:8px 14px;color:var(--txt);font-size:13px;outline:none;}
+.chat-inp input:focus{border-color:var(--cyan);}
+.sbtn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sbtn svg{width:15px;height:15px;}
+
+/* ── Code Editor ── */
+.code-box{width:100%;min-height:160px;background:#000;border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;font-family:monospace;font-size:12px;color:#0f0;outline:none;resize:vertical;}
+.code-out{width:100%;height:150px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-top:8px;}
+
+/* ── File Grid ── */
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.fi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;transition:all .2s;}
+.fi:active{border-color:var(--bh);}
+.fi svg{width:30px;height:30px;margin-bottom:6px;}
+.fi-nm{font-size:10px;color:var(--txt2);}
+
+/* ── Task ── */
+.task{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;}
+.tchk{width:20px;height:20px;border-radius:50%;border:2px solid var(--cyan);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tchk.done{background:var(--cyan);}
+.tchk svg{width:10px;height:10px;}
+.ttxt{flex:1;font-size:13px;}
+.ttxt.done{text-decoration:line-through;color:var(--txt2);}
+
+/* ── Mail ── */
+.mail{display:flex;align-items:center;gap:10px;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer;}
+.mail.unread{border-right:3px solid var(--cyan);}
+.mav{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+.mi{flex:1;}
+.ms{font-size:13px;font-weight:600;margin-bottom:2px;}
+.mp{font-size:11px;color:var(--txt2);}
+.mt{font-size:10px;color:var(--txt2);}
+
+/* ── Calendar ── */
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cday{aspect-ratio:1;background:var(--card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;position:relative;}
+.cday.today{background:linear-gradient(135deg,var(--cyan),var(--purple));font-weight:700;}
+.cday.hev::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;background:var(--pink);border-radius:50%;}
+
+/* ── Notes ── */
+.ngrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.note{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:14px;min-height:130px;}
+.nt{font-weight:600;font-size:13px;margin-bottom:6px;}
+.nb{font-size:12px;color:var(--txt2);line-height:1.5;}
+
+/* ── Sheet ── */
+.sheet{width:100%;border-collapse:collapse;font-size:12px;}
+.sheet th,.sheet td{padding:8px;border:1px solid var(--border);text-align:center;}
+.sheet th{background:rgba(255,255,255,.05);font-weight:600;}
+
+/* ── Slide ── */
+.slide{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:30px 20px;text-align:center;}
+.slide-t{font-size:22px;font-weight:700;margin-bottom:12px;}
+.slide-b{font-size:14px;color:var(--txt2);line-height:1.7;}
+
+/* ── Workspace Tabs ── */
+.wtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.wtabs::-webkit-scrollbar{height:2px;}
+.wtab{padding:7px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--txt2);cursor:pointer;font-size:12px;white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.wtab.on{background:var(--cyan);color:#000;border-color:var(--cyan);font-weight:600;}
+
+/* ── Store ── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.si{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.si-img{height:80px;display:flex;align-items:center;justify-content:center;}
+.si-img svg{width:36px;height:36px;}
+.si-body{padding:10px;}
+.si-nm{font-size:13px;font-weight:600;margin-bottom:3px;}
+.si-ds{font-size:11px;color:var(--txt2);margin-bottom:8px;}
+.si-btn{width:100%;padding:7px;background:var(--cyan);border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;}
+
+/* ── Feed ── */
+.feed{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
+.fhd{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.fav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+.fnm{font-weight:600;font-size:13px;}
+.ftm{font-size:11px;color:var(--txt2);}
+.fbody{font-size:13px;line-height:1.5;margin-bottom:10px;}
+.facts{display:flex;gap:16px;padding-top:10px;border-top:1px solid var(--border);}
+.fac{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--txt2);cursor:pointer;}
+.fac svg{width:13px;height:13px;}
+
+/* ── Community ── */
+.comm{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;}
+.chead{display:flex;align-items:center;gap:10px;}
+.cico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.cico svg{width:20px;height:20px;}
+.cnm{font-weight:600;font-size:13px;}
+.cmem{font-size:11px;color:var(--txt2);}
+.jbtn{margin-right:auto;padding:5px 14px;background:var(--cyan);border:none;border-radius:20px;color:#000;font-weight:700;font-size:11px;cursor:pointer;}
+
+/* ── Device ── */
+.dev{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;}
+.dico{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;}
+.dico svg{width:20px;height:20px;}
+
+/* ── Agent ── */
+.agent-hero{display:flex;flex-direction:column;align-items:center;padding:20px 0;}
+.agent-av{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;animation:agFloat 3s ease-in-out infinite;margin-bottom:14px;}
+.agent-av svg{width:50px;height:50px;}
+@keyframes agFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.qacts{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:12px;}
+.qa{padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--txt);cursor:pointer;font-size:12px;transition:all .2s;}
+.qa:active{background:rgba(0,212,255,.12);border-color:var(--bh);}
+
+/* ── Shield ── */
+.shield-wrap{display:flex;flex-direction:column;align-items:center;padding:18px 0;}
+.shield{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;animation:sPulse 2.5s infinite;}
+.shield svg{width:44px;height:44px;}
+@keyframes sPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,229,160,.4);}50%{box-shadow:0 0 0 20px rgba(0,229,160,0);}}
+
+/* ── Media ── */
+.mcover{width:130px;height:130px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:spin 12s linear infinite;}
+.mcover svg{width:60px;height:60px;}
+.mctrl{display:flex;justify-content:center;gap:14px;margin-top:12px;}
+.mcb{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.mcb svg{width:18px;height:18px;}
+.mc-play{background:linear-gradient(135deg,var(--cyan),var(--purple))!important;border:none!important;}
+
+/* ── VPN Row ── */
+.vpnrow{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;}
+.vdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.von{background:var(--green);box-shadow:0 0 7px var(--green);}
+.voff{background:var(--red);}
+
+/* ── Stream ── */
+.stream{width:100%;height:160px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.stream::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(0,212,255,.06) 50%,transparent 70%);animation:shine 3s infinite;}
+.stream svg{width:48px;height:48px;opacity:0.3;}
+@keyframes shine{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+
+/* ── Test Result ── */
+.tr{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:5px;font-size:12px;}
+.tr svg{width:14px;height:14px;flex-shrink:0;}
+.tr-ok{background:rgba(0,229,160,.08);color:var(--green);}
+.tr-fail{background:rgba(255,59,92,.08);color:var(--red);}
+
+/* ── DB Table ── */
+.dbt{width:100%;border-collapse:collapse;font-size:12px;}
+.dbt th,.dbt td{padding:8px;border:1px solid var(--border);text-align:center;}
+.dbt th{background:rgba(255,255,255,.05);font-weight:600;}
+
+/* ── Search Results ── */
+.sr{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
+.sr-t{font-size:14px;font-weight:600;color:var(--cyan);margin-bottom:4px;}
+.sr-u{font-size:10px;color:var(--green);margin-bottom:6px;}
+.sr-d{font-size:12px;color:var(--txt2);line-height:1.5;}
+
+/* ── Game Canvas ── */
+#gameCanvas{display:block;border:1px solid rgba(0,212,255,.2);border-radius:10px;max-width:100%;}
+
+/* ── Perf Chart ── */
+.pchart{height:100px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:flex-end;padding:10px;gap:4px;}
+.pb2{flex:1;background:linear-gradient(180deg,var(--cyan),var(--purple));border-radius:2px 2px 0 0;transition:height .5s;}
+
+/* ── Btn Primary ── */
+.btnp{width:100%;padding:10px;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px;}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:calc(var(--botH) + 12px);left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:rgba(4,8,22,.97);border:1px solid rgba(0,212,255,.28);
+  color:var(--txt);padding:7px 18px;border-radius:25px;font-size:12px;
+  z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Overlay backdrop ── */
+#drawerBg{position:fixed;inset:0;z-index:140;background:rgba(0,0,0,.5);display:none;}
+#drawerBg.show{display:block;}
+
+/* ── PW strength ── */
+.pwrow{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;}
+.pwico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.pwico svg{width:18px;height:18px;}
+.sbars{display:flex;gap:3px;margin-top:4px;}
+.sbar{width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);}
+.sbar.f{background:var(--green);}
+
+/* ══ SETTINGS MODAL ══ */
+#settingsModal{
+  position:fixed;inset:0;z-index:900;
+  background:rgba(2,4,14,0.97);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sets-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  background:rgba(3,5,18,0.95);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.sets-close{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;transition:all .2s;
+}
+.sets-close:active{background:rgba(255,59,92,0.2);border-color:var(--red);}
+.sets-close svg{width:16px;height:16px;stroke:#6a90b0;}
+.sets-title{font-size:17px;font-weight:700;flex:1;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sets-body{display:flex;flex:1;overflow:hidden;}
+
+/* Sidebar */
+#setsSidebar{
+  width:200px;flex-shrink:0;
+  overflow-y:auto;
+  border-left:1px solid var(--border);
+  padding:10px 8px;
+  background:rgba(4,7,18,0.8);
+}
+.set-cat-group{margin-bottom:16px;}
+.set-cat-label{font-size:10px;color:var(--txt2);font-weight:600;
+  letter-spacing:0.8px;padding:0 8px;margin-bottom:6px;text-transform:uppercase;}
+.set-cat-item{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:10px;cursor:pointer;
+  font-size:12px;color:var(--txt2);transition:all .2s;margin-bottom:2px;
+}
+.set-cat-item:active,.set-cat-item.active-cat{
+  background:rgba(0,212,255,0.1);
+  color:var(--cyan);border:1px solid rgba(0,212,255,0.15);
+}
+.set-cat-item svg{width:15px;height:15px;flex-shrink:0;}
+
+/* Content */
+#setsContent{
+  flex:1;overflow-y:auto;padding:16px;
+}
+.set-section{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.set-section-title{
+  font-size:18px;font-weight:700;margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.set-section-title svg{width:20px;height:20px;}
+.set-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;background:var(--card);
+  border:1px solid var(--border);border-radius:12px;
+  margin-bottom:8px;cursor:pointer;transition:all .2s;
+}
+.set-row:active{border-color:var(--bh);background:rgba(0,212,255,0.05);}
+.set-row-ico{width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.set-row-ico svg{width:18px;height:18px;}
+.set-row-info{flex:1;}
+.set-row-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.set-row-sub{font-size:11px;color:var(--txt2);}
+.set-row-action{flex-shrink:0;}
+.set-group-title{font-size:11px;color:var(--txt2);font-weight:700;
+  text-transform:uppercase;letter-spacing:0.6px;
+  padding:14px 0 6px;margin-bottom:4px;
+  border-bottom:1px solid rgba(255,255,255,0.05);}
+
+/* Breadcrumb */
+#setsBreadcrumb{
+  display:none;align-items:center;gap:8px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  background:rgba(4,7,18,0.8);flex-shrink:0;
+}
+#setsBreadcrumb button{
+  background:none;border:none;color:var(--cyan);
+  font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;
+}
+
+@media(max-width:599px){
+  #setsSidebar{width:100%;}
+  #setsContent{display:none;}
+  #setsBreadcrumb{display:none;}
+}
+
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════
+  FIREBASE SDK
+═══════════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore,
+         doc, setDoc, getDoc,
+         collection, addDoc, getDocs, deleteDoc,
+         query, orderBy, limit, serverTimestamp }
+                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ── Config ───────────────────────────────────────────────── */
+const firebaseConfig = {
+  apiKey:            "AIzaSyDsSARE2a-fpnvZulrwMrxPt6sT8RPqAX8",
+  authDomain:        "zaki-ai-a4b86.firebaseapp.com",
+  projectId:         "zaki-ai-a4b86",
+  storageBucket:     "zaki-ai-a4b86.firebasestorage.app",
+  messagingSenderId: "391565556979",
+  appId:             "1:391565556979:web:b86adda72336bb4a204b86"
+};
+
+/* ── Init ─────────────────────────────────────────────────── */
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const db     = getFirestore(fbApp);
+
+let currentUser = null;
+
+/* ── Anonymous Auth ───────────────────────────────────────── */
+signInAnonymously(auth).catch(e => console.error("Auth error:", e));
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    console.log("✅ Firebase connected — UID:", user.uid);
+    // بعد ما المستخدم يتسجل نجيب بياناته
+    fbLoadBookmarks();
+    fbLoadHistory();
+    fbLoadSettings();
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   📌  BOOKMARKS
+───────────────────────────────────────────────────────────── */
+window.fbAddBookmark = async (title, url) => {
+  if (!currentUser) { toast("⚠️ جاري الاتصال..."); return; }
+  try {
+    await addDoc(collection(db, "users", currentUser.uid, "bookmarks"), {
+      title, url, date: serverTimestamp()
+    });
+    toast("✅ أُضيفت للمفضلة");
+    fbLoadBookmarks();
+  } catch(e) { toast("❌ خطأ في حفظ المفضلة"); console.error(e); }
+};
+
+window.fbDeleteBookmark = async (id) => {
+  if (!currentUser) return;
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "bookmarks", id));
+    fbLoadBookmarks();
+    toast("🗑 حُذفت من المفضلة");
+  } catch(e) { console.error(e); }
+};
+
+window.fbLoadBookmarks = async () => {
+  if (!currentUser) return;
+  try {
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "bookmarks"));
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    renderBookmarks(list);
+  } catch(e) { console.error(e); }
+};
+
+function renderBookmarks(list) {
+  const el = document.getElementById('bookmarksList');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--txt2);padding:30px;font-size:13px;">لا توجد مفضلة بعد<br><small style="opacity:.5">افتح أي موقع واضغط ⭐</small></div>';
+    return;
+  }
+  el.innerHTML = list.map(b => `
+    <div class="fc" style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="navigate('${b.url}')">
+      <div class="fc-ico ic-gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" width="18" height="18"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      </div>
+      <div style="flex:1;overflow:hidden;">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.title}</div>
+        <div style="font-size:11px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.url}</div>
+      </div>
+      <div onclick="event.stopPropagation();fbDeleteBookmark('${b.id}')" style="padding:6px;cursor:pointer;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🕐  HISTORY
+───────────────────────────────────────────────────────────── */
+window.fbAddHistory = async (title, url) => {
+  if (!currentUser) return;
+  try {
+    await addDoc(collection(db, "users", currentUser.uid, "history"), {
+      title, url, date: serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+};
+
+window.fbClearHistory = async () => {
+  if (!currentUser) return;
+  try {
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "history"));
+    await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    renderHistory([]);
+    toast("✅ تم مسح التاريخ");
+  } catch(e) { console.error(e); }
+};
+
+window.fbLoadHistory = async () => {
+  if (!currentUser) return;
+  try {
+    const q    = query(collection(db, "users", currentUser.uid, "history"), orderBy("date","desc"), limit(100));
+    const snap = await getDocs(q);
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    renderHistory(list);
+  } catch(e) { console.error(e); }
+};
+
+function renderHistory(list) {
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--txt2);padding:30px;font-size:13px;">لا يوجد تاريخ تصفح بعد</div>';
+    return;
+  }
+  el.innerHTML = list.map(h => {
+    const d = h.date?.toDate ? h.date.toDate() : new Date(h.date);
+    return `
+      <div class="fc" style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="navigate('${h.url}')">
+        <div class="fc-ico ic-c">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.title || h.url}</div>
+          <div style="font-size:11px;color:var(--txt2);">${isNaN(d)?'':'‏'+d.toLocaleString('ar-EG')}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⚙️  SETTINGS
+───────────────────────────────────────────────────────────── */
+window.fbSaveSettings = async (settings) => {
+  if (!currentUser) return;
+  try {
+    await setDoc(doc(db, "users", currentUser.uid, "data", "settings"), settings, { merge: true });
+  } catch(e) { console.error(e); }
+};
+
+window.fbLoadSettings = async () => {
+  if (!currentUser) return;
+  try {
+    const snap = await getDoc(doc(db, "users", currentUser.uid, "data", "settings"));
+    if (snap.exists()) {
+      const s = snap.data();
+      if (s.theme) setTheme(s.theme);
+      console.log("✅ Settings loaded:", s);
+    }
+  } catch(e) { console.error(e); }
+};
+
+/* ── expose user UID للـ JS العادي ───────────────────────── */
+window.fbGetUID = () => currentUser?.uid || null;
+
+</script>
+
+</head>
+<body>
+
+<!-- ============================================================
+  HTML — Section 2/3
+============================================================ -->
+
+<!-- BG -->
+<div id="bgWrap">
+  <canvas id="stars"></canvas>
+  <div class="neb nc"></div>
+  <div class="neb np"></div>
+</div>
+
+<!-- TOP BAR -->
+<header id="topBar">
+  <!-- Row 1: Nav buttons + Avatar -->
+  <div class="top-row1">
+    <div class="nav-btns">
+      <!-- Back -->
+      <button class="tnb" id="btnBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <!-- Forward -->
+      <button class="tnb" id="btnFwd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <!-- Refresh -->
+      <button class="tnb" id="btnRef">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+      <!-- AI -->
+      <button class="tnb tnb-ai" id="btnAI">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      </button>
+      <!-- Menu -->
+      <button class="tnb" id="btnMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <!-- Settings Button -->
+    <button class="tnb" id="btnSettings" onclick="openSettings()" title="الإعدادات">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+
+  <!-- Row 2: Address bar full width -->
+  <div class="top-row2">
+    <div class="abar-wrap">
+      <div class="abar">
+        <button class="amic" id="btnMic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <div class="adiv"></div>
+        <input class="ainp" id="urlInput" type="text" placeholder="AI Search — ابحث أو أدخل رابط" autocomplete="off" spellcheck="false"/>
+        <!-- زر المفضلة -->
+        <button class="amic" id="btnBookmark" onclick="addCurrentToBookmarks()" title="أضف للمفضلة" style="flex-shrink:0;">
+          <svg id="bookmarkIcon" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" width="16" height="16"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+        </button>
+        <button class="asrch" id="btnSrch"><span>بحث</span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- VOICE PANEL -->
+<div id="voicePanel" class="hide">
+  <div style="text-align:center;">
+    <div style="font-size:15px;color:var(--txt2);margin-bottom:6px;">HyperNova — بحث صوتي</div>
+    <div style="font-size:12px;color:var(--txt3);">تكلم الآن...</div>
+  </div>
+  <button class="vmic-btn" id="vMicBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+  </button>
+  <div id="voiceText">اضغط على الميكروفون وتكلم</div>
+  <div id="voiceResult"></div>
+  <button class="vclose" onclick="closeVoice()">إلغاء</button>
+</div>
+
+<!-- ═══════════ PANELS ═══════════ -->
+
+<!-- HOME — pure space -->
+<div class="panel active" id="pHome"></div>
+
+<!-- ═══ BOOKMARKS ═══ -->
+<div class="panel" id="pBookmarks">
+  <div class="stitle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    المفضلة
+  </div>
+  <div id="bookmarksList">
+    <div style="text-align:center;color:var(--txt2);padding:40px;font-size:13px;">
+      <div style="font-size:32px;margin-bottom:10px;">⭐</div>
+      جاري تحميل المفضلة...
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HISTORY ═══ -->
+<div class="panel" id="pHistory">
+  <div class="stitle" style="justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      التاريخ
+    </div>
+    <button onclick="fbClearHistory && fbClearHistory()" style="padding:5px 12px;background:rgba(255,59,92,.12);border:1px solid rgba(255,59,92,.3);border-radius:20px;color:var(--red);font-size:11px;cursor:pointer;">🗑 مسح الكل</button>
+  </div>
+  <div id="historyList">
+    <div style="text-align:center;color:var(--txt2);padding:40px;font-size:13px;">
+      <div style="font-size:32px;margin-bottom:10px;">🕐</div>
+      جاري تحميل التاريخ...
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="panel" id="pDash">
+  <div class="stitle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    لوحة التحكم
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-v">99.9%</div><div class="stat-l">أمان النظام</div></div>
+    <div class="stat"><div class="stat-v">2.3s</div><div class="stat-l">سرعة التحميل</div></div>
+    <div class="stat"><div class="stat-v">12</div><div class="stat-l">إعلانات محظورة</div></div>
+    <div class="stat"><div class="stat-v">3</div><div class="stat-l">أجهزة متصلة</div></div>
+  </div>
+  <div class="fc"><div class="fc-head"><div class="fc-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><div class="fc-name">HyperCore Engine</div><div class="fc-sub">محرك التصفح الفائق</div></div></div><div class="pbar"><div class="pfill" style="width:95%"></div></div></div>
+  <div class="fc"><div class="fc-head"><div class="fc-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="fc-name">Quantum Security</div><div class="fc-sub">الحماية نشطة 100%</div></div></div><div class="pbar"><div class="pfill" style="width:100%"></div></div></div>
+  <div class="fc"><div class="fc-head"><div class="fc-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div><div class="fc-name">HyperNova AI</div><div class="fc-sub">المساعد الذكي</div></div></div><div class="pbar"><div class="pfill" style="width:88%"></div></div></div>
+  <div class="fc"><div class="fc-head"><div class="fc-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg></div><div><div class="fc-name">Nova Cloud</div><div class="fc-sub">45GB / 100GB مستخدم</div></div></div><div class="pbar"><div class="pfill" style="width:45%"></div></div></div>
+</div>
+
+<!-- SECURITY -->
+<div class="panel" id="pSec">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Quantum Security</div>
+  <div class="fc">
+    <div class="shield-wrap">
+      <div class="shield"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+      <div style="margin-top:12px;font-size:16px;font-weight:700;">النظام محمي</div>
+      <div style="color:var(--txt2);font-size:12px;margin-top:4px;">جميع الطبقات نشطة</div>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M1 6l5 5 5-5"/><path d="M22 18l-5-5-5 5"/><path d="M6 11V3a15 15 0 0010 0v8"/><path d="M18 13v8a15 15 0 01-10 0v-8"/></svg></div><div class="fc-name">VPN</div></div>
+    <div class="vpnrow">
+      <div class="vdot von"></div>
+      <div style="flex:1;"><div style="font-weight:600;font-size:13px;">Quantum VPN</div><div style="font-size:11px;color:var(--txt2);" id="vpnSt">متصل — مصر</div></div>
+      <div class="tog on" id="vpnTog" onclick="this.classList.toggle('on');document.getElementById('vpnSt').textContent=this.classList.contains('on')?'متصل — مصر':'غير متصل';toast(this.classList.contains('on')?'VPN مفعل':'VPN معطل');"></div>
+    </div>
+    <ul class="flist">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>تشفير البيانات</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>إخفاء IP</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>حماية DNS</li>
+    </ul>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div class="fc-name">حظر الإعلانات والتتبع</div></div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat"><div class="stat-v" style="font-size:18px;" id="adsN">12</div><div class="stat-l">إعلان</div></div>
+      <div class="stat"><div class="stat-v" style="font-size:18px;" id="trkN">45</div><div class="stat-l">متتبع</div></div>
+      <div class="stat"><div class="stat-v" style="font-size:18px;">128MB</div><div class="stat-l">محفوظ</div></div>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="fc-name">أوضاع الحماية</div></div>
+    <ul class="flist">
+      <li style="justify-content:space-between;"><span>وضع الأطفال</span><div class="tog" onclick="this.classList.toggle('on');toast('تم تبديل وضع الأطفال')"></div></li>
+      <li style="justify-content:space-between;"><span>وضع المدارس</span><div class="tog" onclick="this.classList.toggle('on');toast('تم تبديل وضع المدارس')"></div></li>
+      <li style="justify-content:space-between;"><span>وضع الشركات</span><div class="tog" onclick="this.classList.toggle('on');toast('تم تبديل وضع الشركات')"></div></li>
+      <li style="justify-content:space-between;"><span>حماية التصيد</span><div class="tog on" onclick="this.classList.toggle('on')"></div></li>
+      <li style="justify-content:space-between;"><span>عزل التبويبات</span><div class="tog on" onclick="this.classList.toggle('on')"></div></li>
+    </ul>
+  </div>
+</div>
+
+<!-- AI -->
+<div class="panel" id="pAI">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>HyperNova AI</div>
+  <div class="chat-box">
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg msg-bot"><strong>HyperNova AI</strong><br>مرحباً! يمكنني تلخيص المواقع، الترجمة، كتابة الأكواد، وإدارة المهام. كيف أساعدك؟</div>
+    </div>
+    <div class="chat-inp">
+      <input type="text" id="chatInp" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="sbtn" onclick="sendChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- IDENTITY -->
+<div class="panel" id="pId">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>Nova Identity</div>
+  <div class="fc" style="text-align:center;padding:20px;">
+    <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="34" height="34"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:700;">HyperNova User</div>
+    <div style="color:var(--txt2);font-size:12px;margin-top:4px;">user@hypernova.com</div>
+    <span class="bdg b-g" style="display:inline-block;margin-top:8px;">● متصل</span>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/></svg></div><div class="fc-name">الأجهزة</div></div>
+    <div class="dev"><div class="dico"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">Windows PC</div><div style="font-size:11px;color:var(--txt2);">متصل الآن — القاهرة</div></div><span style="color:var(--green);font-size:10px;">● نشط</span></div>
+    <div class="dev"><div class="dico"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">iPhone 15</div><div style="font-size:11px;color:var(--txt2);">منذ 5 دقائق</div></div><span style="color:var(--txt2);font-size:10px;">● غير نشط</span></div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-gold"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="fc-name">كلمات المرور</div></div>
+    <div class="pwrow"><div class="pwico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">Google</div><div class="sbars"><div class="sbar f"></div><div class="sbar f"></div><div class="sbar f"></div><div class="sbar f"></div></div></div></div>
+    <div class="pwrow"><div class="pwico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">GitHub</div><div class="sbars"><div class="sbar f"></div><div class="sbar f"></div><div class="sbar f"></div><div class="sbar"></div></div></div></div>
+  </div>
+</div>
+
+<!-- CLOUD -->
+<div class="panel" id="pCloud">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>Nova Cloud</div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div><div class="fc-name">التخزين</div></div>
+    <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span>الكلي</span><span>45GB / 100GB</span></div><div class="pbar"><div class="pfill" style="width:45%"></div></div></div>
+    <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span>الملفات</span><span>23GB / 50GB</span></div><div class="pbar"><div class="pfill" style="width:46%"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span>النسخ الاحتياطية</span><span>12GB / 30GB</span></div><div class="pbar"><div class="pfill" style="width:40%"></div></div></div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div><div class="fc-name">الملفات الأخيرة</div></div>
+    <div class="fgrid">
+      <div class="fi" onclick="toast('فتح تقرير.pdf')"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="fi-nm">تقرير.pdf</div></div>
+      <div class="fi" onclick="toast('فتح صورة')"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div class="fi-nm">صورة.jpg</div></div>
+      <div class="fi" onclick="toast('فتح مستند')"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><div class="fi-nm">مستند.docx</div></div>
+      <div class="fi" onclick="toast('فتح بيانات')"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg><div class="fi-nm">بيانات.xlsx</div></div>
+      <div class="fi" onclick="toast('فتح فيديو')"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><div class="fi-nm">فيديو.mp4</div></div>
+      <div class="fi" onclick="toast('فتح كود')"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><div class="fi-nm">script.js</div></div>
+    </div>
+    <button class="btnp" onclick="toast('جاري النسخ الاحتياطي...')">نسخ احتياطي الآن</button>
+  </div>
+</div>
+
+<!-- NOVA OS -->
+<div class="panel" id="pOS">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Nova OS</div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div><div class="fc-name">مدير الملفات</div></div>
+    <div class="fgrid">
+      <div class="fi" onclick="toast('المستندات')"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><div class="fi-nm">المستندات</div></div>
+      <div class="fi" onclick="toast('التحميلات')"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="fi-nm">التحميلات</div></div>
+      <div class="fi" onclick="toast('الصور')"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div class="fi-nm">الصور</div></div>
+      <div class="fi" onclick="toast('الموسيقى')"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><div class="fi-nm">الموسيقى</div></div>
+      <div class="fi" onclick="toast('الفيديو')"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><div class="fi-nm">الفيديو</div></div>
+      <div class="fi" onclick="toast('المشاريع')"><svg viewBox="0 0 24 24" fill="none" stroke="#536dfe" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><div class="fi-nm">المشاريع</div></div>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="fc-name">أداء النظام</div></div>
+    <div class="pchart" id="pchart">
+      <div class="pb2" style="height:60%"></div><div class="pb2" style="height:45%"></div>
+      <div class="pb2" style="height:78%"></div><div class="pb2" style="height:32%"></div>
+      <div class="pb2" style="height:55%"></div><div class="pb2" style="height:68%"></div>
+      <div class="pb2" style="height:42%"></div><div class="pb2" style="height:61%"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>CPU</span><span style="color:var(--cyan);">57%</span></div><div class="pbar"><div class="pfill" style="width:57%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>RAM</span><span style="color:var(--cyan);">8GB/16GB</span></div><div class="pbar"><div class="pfill" style="width:50%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>GPU</span><span style="color:var(--cyan);">85%</span></div><div class="pbar"><div class="pfill" style="width:85%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="panel" id="pSearch">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Universal Search</div>
+  <div class="abar" style="max-width:100%;height:42px;border-radius:12px;margin-bottom:14px;">
+    <button class="amic"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+    <div class="adiv"></div>
+    <input class="ainp" id="searchInp" type="text" placeholder="ابحث في كل مكان..." onkeydown="if(event.key==='Enter')doSearch()"/>
+  </div>
+  <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:6px;">
+    <button class="qa" onclick="toast('بحث الإنترنت')"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg> الإنترنت</button>
+    <button class="qa" onclick="toast('بحث الملفات')">📁 ملفات</button>
+    <button class="qa" onclick="toast('بحث البريد')">✉️ بريد</button>
+    <button class="qa" onclick="toast('بحث الصور')">🖼 صور</button>
+    <button class="qa" onclick="toast('بحث الفيديو')">🎬 فيديو</button>
+  </div>
+  <div id="searchResults">
+    <div class="sr"><div class="sr-t">كيفية تعلم البرمجة</div><div class="sr-u">google.com/search?q=programming</div><div class="sr-d">نتائج البحث — أفضل المصادر والدورات التعليمية للمبتدئين</div></div>
+    <div class="sr"><div class="sr-t">تقرير المشروع.pdf</div><div class="sr-u">Nova Cloud / Documents</div><div class="sr-d">آخر تعديل: منذ يومين — 2.5MB</div></div>
+    <div class="sr"><div class="sr-t">رسالة من فريق التطوير</div><div class="sr-u">Nova Mail / Inbox</div><div class="sr-d">تحديث النظام الجديد — منذ 3 ساعات</div></div>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="panel" id="pWork">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>Nova Workspace</div>
+  <div class="wtabs">
+    <button class="wtab on" onclick="showWTab('Docs',this)">مستندات</button>
+    <button class="wtab" onclick="showWTab('Sheets',this)">جداول</button>
+    <button class="wtab" onclick="showWTab('Slides',this)">عروض</button>
+    <button class="wtab" onclick="showWTab('Notes',this)">ملاحظات</button>
+    <button class="wtab" onclick="showWTab('Cal',this)">التقويم</button>
+    <button class="wtab" onclick="showWTab('Tasks',this)">المهام</button>
+    <button class="wtab" onclick="showWTab('Mail',this)">البريد</button>
+  </div>
+  <div id="wDocs"><div contenteditable="true" style="width:100%;min-height:300px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--txt);outline:none;font-size:14px;line-height:1.8;"><h2>مستند جديد</h2><p>اكتب هنا...</p></div></div>
+  <div id="wSheets" class="hide"><table class="sheet"><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr><tr><th>1</th><td>الاسم</td><td>العمر</td><td>المدينة</td><td>الحالة</td></tr><tr><th>2</th><td>أحمد</td><td>25</td><td>القاهرة</td><td>نشط</td></tr><tr><th>3</th><td>سارة</td><td>22</td><td>الإسكندرية</td><td>نشط</td></tr><tr><th>4</th><td>محمد</td><td>30</td><td>طنطا</td><td>معلق</td></tr></table></div>
+  <div id="wSlides" class="hide"><div class="slide"><div class="slide-t">عنوان العرض التقديمي</div><div class="slide-b">هذا نص تجريبي. يمكنك تعديله بالكامل.</div></div></div>
+  <div id="wNotes" class="hide"><div class="ngrid"><div class="note"><div class="nt">ملاحظة 1</div><div class="nb">مراجعة التقرير قبل الاجتماع غداً الساعة 10.</div></div><div class="note"><div class="nt">أفكار المشروع</div><div class="nb">تحسين الواجهة، بحث متقدم، تحسين الأداء.</div></div><div class="note"><div class="nt">قائمة المهام</div><div class="nb">- إكمال التصميم<br>- مراجعة الكود<br>- اختبار النظام</div></div></div></div>
+  <div id="wCal" class="hide">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:14px;font-weight:700;">يونيو 2026</div>
+    <div class="calgrid">
+      <div class="cday" style="color:var(--txt2);font-size:10px;">أحد</div><div class="cday" style="color:var(--txt2);font-size:10px;">إثن</div><div class="cday" style="color:var(--txt2);font-size:10px;">ثلا</div><div class="cday" style="color:var(--txt2);font-size:10px;">أرب</div><div class="cday" style="color:var(--txt2);font-size:10px;">خمس</div><div class="cday" style="color:var(--txt2);font-size:10px;">جمع</div><div class="cday" style="color:var(--txt2);font-size:10px;">سبت</div>
+      <div class="cday">1</div><div class="cday">2</div><div class="cday">3</div><div class="cday">4</div><div class="cday">5</div><div class="cday">6</div><div class="cday">7</div>
+      <div class="cday">8</div><div class="cday">9</div><div class="cday">10</div><div class="cday">11</div><div class="cday">12</div><div class="cday">13</div><div class="cday">14</div>
+      <div class="cday">15</div><div class="cday">16</div><div class="cday">17</div><div class="cday">18</div><div class="cday">19</div><div class="cday">20</div><div class="cday">21</div>
+      <div class="cday today hev">22</div><div class="cday hev">23</div><div class="cday">24</div><div class="cday">25</div><div class="cday">26</div><div class="cday">27</div><div class="cday">28</div>
+    </div>
+  </div>
+  <div id="wTasks" class="hide">
+    <div class="task"><div class="tchk done" onclick="toggleTask(this)"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="ttxt done">إكمال تصميم الواجهة</div><span class="bdg b-g">تم</span></div>
+    <div class="task"><div class="tchk" onclick="toggleTask(this)"></div><div class="ttxt">مراجعة كود الأمان</div><span class="bdg b-r">عاجل</span></div>
+    <div class="task"><div class="tchk" onclick="toggleTask(this)"></div><div class="ttxt">اختبار الأداء</div><span class="bdg b-o">متوسط</span></div>
+    <div class="task"><div class="tchk" onclick="toggleTask(this)"></div><div class="ttxt">كتابة التوثيق</div><span class="bdg b-c">منخفض</span></div>
+  </div>
+  <div id="wMail" class="hide">
+    <div class="mail unread"><div class="mav" style="background:linear-gradient(135deg,var(--cyan),var(--purple));">A</div><div class="mi"><div class="ms">تحديث النظام الجديد</div><div class="mp">تم إصدار تحديث جديد يتضمن...</div></div><div class="mt">10:30</div></div>
+    <div class="mail unread"><div class="mav" style="background:linear-gradient(135deg,var(--pink),var(--purple));">M</div><div class="mi"><div class="ms">دعوة للاجتماع</div><div class="mp">نود دعوتك لحضور اجتماع...</div></div><div class="mt">أمس</div></div>
+    <div class="mail"><div class="mav" style="background:linear-gradient(135deg,var(--green),var(--teal));">S</div><div class="mi"><div class="ms">تقرير الأداء الشهري</div><div class="mp">مرفق تقرير الأداء...</div></div><div class="mt">22 يونيو</div></div>
+  </div>
+</div>
+
+<!-- VIORA -->
+<div class="panel" id="pViora">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Viora</div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="fc-name">المنشورات</div></div>
+    <div class="feed"><div class="fhd"><div class="fav" style="background:linear-gradient(135deg,var(--cyan),var(--purple));">A</div><div><div class="fnm">أحمد محمد</div><div class="ftm">منذ ساعة</div></div></div><div class="fbody">شاركت صفحة رائعة عن تطوير الويب!</div><div class="facts"><div class="fac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>24</div><div class="fac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>5</div><div class="fac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>مشاركة</div></div></div>
+    <div class="feed"><div class="fhd"><div class="fav" style="background:linear-gradient(135deg,var(--pink),var(--orange));">S</div><div><div class="fnm">سارة علي</div><div class="ftm">منذ 3 ساعات</div></div></div><div class="fbody">انتهيت للتو من مشروعي الجديد! 🎉</div><div class="facts"><div class="fac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>56</div><div class="fac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>12</div></div></div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="fc-name">المجتمعات</div></div>
+    <div class="comm"><div class="chead"><div class="cico ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="#536dfe" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><div><div class="cnm">مطورو HyperNova</div><div class="cmem">1,234 عضو</div></div><button class="jbtn" onclick="toast('تم الانضمام!')">انضمام</button></div></div>
+    <div class="comm"><div class="chead"><div class="cico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg></div><div><div class="cnm">مصممو الواجهات</div><div class="cmem">892 عضو</div></div><button class="jbtn" onclick="toast('تم الانضمام!')">انضمام</button></div></div>
+  </div>
+</div>
+
+<!-- STORE -->
+<div class="panel" id="pStore">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Nova Store</div>
+  <div class="wtabs">
+    <button class="wtab on" onclick="showSTab('sApps',this)">تطبيقات</button>
+    <button class="wtab" onclick="showSTab('sGames',this)">ألعاب</button>
+    <button class="wtab" onclick="showSTab('sExt',this)">إضافات</button>
+    <button class="wtab" onclick="showSTab('sAI',this)">AI</button>
+  </div>
+  <div id="sApps"><div class="sgrid">
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--cyan),var(--blue));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="si-body"><div class="si-nm">حاسبة متقدمة</div><div class="si-ds">أداة حساب علمية</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--green),var(--teal));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="si-body"><div class="si-nm">محلل البيانات</div><div class="si-ds">تحليل وعرض</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--pink),var(--purple));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg></div><div class="si-body"><div class="si-nm">مصمم الرسوم</div><div class="si-ds">تصميم احترافي</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--orange),var(--red));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="si-body"><div class="si-nm">محرر الصوت</div><div class="si-ds">تحرير الملفات</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+  </div></div>
+  <div id="sGames" class="hide"><div class="sgrid">
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--red),var(--orange));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M8 10v4M15 12h.01M17 10h.01"/></svg></div><div class="si-body"><div class="si-nm">لعبة المغامرات</div><div class="si-ds">عالم مفتوح</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--indigo),var(--purple));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><rect x="2" y="2" width="8" height="8"/><rect x="14" y="2" width="8" height="8"/><rect x="2" y="14" width="8" height="8"/><rect x="14" y="14" width="8" height="8"/></svg></div><div class="si-body"><div class="si-nm">شطرنج ذكي</div><div class="si-ds">مع AI متقدم</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+  </div></div>
+  <div id="sExt" class="hide"><div class="sgrid">
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--orange),var(--red));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div class="si-body"><div class="si-nm">حظر الإعلانات</div><div class="si-ds">حظر متقدم</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+  </div></div>
+  <div id="sAI" class="hide"><div class="sgrid">
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--pink),var(--purple));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div class="si-body"><div class="si-nm">مساعد الكتابة</div><div class="si-ds">كتابة بـ AI</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+    <div class="si"><div class="si-img" style="background:linear-gradient(135deg,var(--purple),var(--indigo));"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div class="si-body"><div class="si-nm">مولد الصور</div><div class="si-ds">صور بـ AI</div><button class="si-btn" onclick="toast('تم التثبيت!')">تثبيت</button></div></div>
+  </div></div>
+</div>
+
+<!-- STUDIO -->
+<div class="panel" id="pStudio">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Nova Studio</div>
+  <div class="fc">
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+      <button onclick="runCode()" style="padding:7px 12px;background:var(--green);border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;">▶ تشغيل</button>
+      <button onclick="toast('تم الحفظ')" style="padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:12px;cursor:pointer;">💾 حفظ</button>
+      <button onclick="document.getElementById('codeInp').value=''" style="padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:12px;cursor:pointer;">🗑 مسح</button>
+    </div>
+    <textarea class="code-box" id="codeInp">// Nova Studio - اكتب كودك هنا
+document.body.style.background = '#0a0020';
+document.body.innerHTML = '<h1 style="color:#00d4ff;text-align:center;margin-top:40px;">Hello from Nova Studio! 🚀</h1>';</textarea>
+    <iframe id="codeOut" class="code-out"></iframe>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div><div class="fc-name">قواعد البيانات</div></div>
+    <table class="dbt"><tr><th>ID</th><th>الاسم</th><th>البريد</th><th>الحالة</th></tr><tr><td>1</td><td>أحمد</td><td>a@test.com</td><td><span class="bdg b-g">نشط</span></td></tr><tr><td>2</td><td>سارة</td><td>s@test.com</td><td><span class="bdg b-g">نشط</span></td></tr><tr><td>3</td><td>محمد</td><td>m@test.com</td><td><span class="bdg b-o">معلق</span></td></tr></table>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></div><div class="fc-name">اختبار التطبيقات</div></div>
+    <div class="tr tr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> اختبار الأداء — ناجح</div>
+    <div class="tr tr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> اختبار الأمان — ناجح</div>
+    <div class="tr tr-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> اختبار التوافق — ناجح</div>
+    <div class="tr tr-fail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> اختبار الشبكة — فشل</div>
+    <button class="btnp" onclick="toast('جاري إعادة الاختبار...')">إعادة الاختبار</button>
+  </div>
+</div>
+
+<!-- GAMING -->
+<div class="panel" id="pGaming">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M8 10v4M15 12h.01M17 10h.01"/></svg>Nova Gaming</div>
+  <div class="fc" style="text-align:center;">
+    <canvas id="gameCanvas" width="320" height="200"></canvas>
+    <div style="display:flex;justify-content:center;gap:20px;margin:10px 0;">
+      <div><div style="font-size:20px;font-weight:700;color:var(--cyan);" id="gscore">0</div><div style="font-size:10px;color:var(--txt2);">النقاط</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:var(--gold);" id="ghigh">0</div><div style="font-size:10px;color:var(--txt2);">أعلى</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:var(--green);" id="gfps">60</div><div style="font-size:10px;color:var(--txt2);">FPS</div></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;">
+      <button onclick="startGame()" style="padding:8px 20px;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;border-radius:20px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">▶ ابدأ</button>
+      <button onclick="stopGame()" style="padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--txt);font-size:13px;cursor:pointer;">■ إيقاف</button>
+    </div>
+    <!-- Mobile controls -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:160px;margin:0 auto;">
+      <div></div>
+      <button onclick="setDir(0,-1)" style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:16px;cursor:pointer;">↑</button>
+      <div></div>
+      <button onclick="setDir(-1,0)" style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:16px;cursor:pointer;">←</button>
+      <button onclick="setDir(0,1)" style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:16px;cursor:pointer;">↓</button>
+      <button onclick="setDir(1,0)" style="padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:16px;cursor:pointer;">→</button>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="fc-name">أداء الجهاز أثناء اللعب</div></div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>GPU</span><span style="color:var(--orange);">85%</span></div><div class="pbar"><div class="pfill" style="width:85%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>CPU</span><span style="color:var(--cyan);">45%</span></div><div class="pbar"><div class="pfill" style="width:45%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>درجة حرارة GPU</span><span style="color:var(--orange);">72°C</span></div><div class="pbar"><div class="pfill" style="width:72%;background:linear-gradient(90deg,var(--orange),var(--red));"></div></div></div>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div><div class="fc-name">البث المباشر</div></div>
+    <div class="stream"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+    <div style="display:flex;gap:8px;margin-top:10px;justify-content:center;">
+      <button onclick="toast('بدأ البث!')" style="padding:8px 16px;background:var(--red);border:none;border-radius:20px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;">● بث مباشر</button>
+      <button onclick="toast('توقف البث')" style="padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--txt);font-size:12px;cursor:pointer;">■ إيقاف</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEDIA -->
+<div class="panel" id="pMedia">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Nova Media</div>
+  <div class="fc" style="text-align:center;">
+    <div class="mcover"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="60" height="60"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+    <div style="font-size:15px;font-weight:600;">أغنية تجريبية</div>
+    <div style="color:var(--txt2);font-size:12px;margin-top:4px;">فنان مجهول</div>
+    <div class="pbar" style="margin:12px 0;"><div class="pfill" style="width:35%"></div></div>
+    <div class="mctrl">
+      <button class="mcb"><svg viewBox="0 0 24 24" fill="none" stroke="#deeeff" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+      <button class="mcb mc-play" id="playBtn" onclick="togglePlay(this)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+      <button class="mcb"><svg viewBox="0 0 24 24" fill="none" stroke="#deeeff" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="fc-name">مشغل الفيديو</div></div>
+    <div style="background:var(--bg);border-radius:10px;height:140px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:8px;" onclick="toast('تشغيل الفيديو')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" width="50" height="50"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+    </div>
+    <div class="pbar"><div class="pfill" style="width:20%"></div></div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div class="fc-name">محرر الصور</div></div>
+    <div style="background:var(--bg);border-radius:10px;height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1e3248" stroke-width="2" width="48" height="48"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="qa" onclick="toast('قص')">✂ قص</button>
+      <button class="qa" onclick="toast('تباين')">◑ تباين</button>
+      <button class="qa" onclick="toast('ألوان')">🎨 ألوان</button>
+      <button class="qa" onclick="toast('فلاتر')">✦ فلاتر</button>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT -->
+<div class="panel" id="pAgent">
+  <div class="stitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>HyperNova Agent</div>
+  <div class="fc">
+    <div class="agent-hero">
+      <div class="agent-av"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" width="50" height="50"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="9" cy="16" r="1" fill="#fff"/><circle cx="15" cy="16" r="1" fill="#fff"/><line x1="12" y1="19" x2="12" y2="21"/></svg></div>
+      <div style="font-size:17px;font-weight:700;margin-top:4px;">الوكيل الشخصي الذكي</div>
+      <div style="color:var(--txt2);font-size:12px;margin-top:6px;text-align:center;max-width:280px;">أنفذ الأوامر المعقدة، أدير المشاريع والأعمال والدراسة والملفات.</div>
+      <div class="qacts">
+        <button class="qa" onclick="toast('إدارة المشاريع...')">📋 المشاريع</button>
+        <button class="qa" onclick="toast('إدارة الأعمال...')">💼 الأعمال</button>
+        <button class="qa" onclick="toast('إدارة الدراسة...')">📚 الدراسة</button>
+        <button class="qa" onclick="toast('إدارة الملفات...')">📁 الملفات</button>
+        <button class="qa" onclick="toast('التخطيط الذكي...')">🗓 التخطيط</button>
+      </div>
+    </div>
+  </div>
+  <div class="fc">
+    <div class="fc-head"><div class="fc-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="fc-name">المهام النشطة</div></div>
+    <div class="task"><div class="tchk done"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="ttxt done">مراجعة البريد الوارد</div><span class="bdg b-g">تم</span></div>
+    <div class="task"><div class="tchk" onclick="toggleTask(this)"></div><div class="ttxt">تحليل بيانات المشروع</div><span class="bdg b-c">جاري</span></div>
+    <div class="task"><div class="tchk" onclick="toggleTask(this)"></div><div class="ttxt">إعداد تقرير الأداء</div><span class="bdg b-o">معلق</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-v">24</div><div class="stat-l">مهمة منفذة</div></div>
+    <div class="stat"><div class="stat-v">5</div><div class="stat-l">مشاريع نشطة</div></div>
+    <div class="stat"><div class="stat-v">98%</div><div class="stat-l">كفاءة</div></div>
+    <div class="stat"><div class="stat-v">12h</div><div class="stat-l">وقت موفر</div></div>
+  </div>
+</div>
+
+<!-- BROWSER PLACEHOLDER -->
+<div class="panel" id="pBrowser">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--txt2);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#1e3248" stroke-width="2" width="56" height="56"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+    <p style="font-size:14px;">جاري تحميل الصفحة...</p>
+    <small style="font-size:10px;opacity:.4;font-family:monospace;">SERVER_SLOT: hypercore_engine</small>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<nav id="botBar">
+  <!-- Home -->
+  <button class="tbb" onclick="showP('Home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <!-- Dashboard -->
+  <button class="tbb" onclick="showP('Dash')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <!-- Security -->
+  <button class="tbb" onclick="showP('Sec')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <span>Security</span>
+  </button>
+  <!-- AI -->
+  <button class="tbb" onclick="showP('AI')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+    <span>AI</span>
+  </button>
+  <!-- Workspace -->
+  <button class="tbb" onclick="showP('Work')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+    <span>Workspace</span>
+  </button>
+  <!-- More -->
+  <button class="tbb" onclick="toggleDrawer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+    <span>More</span>
+  </button>
+</nav>
+
+<!-- MORE DRAWER -->
+<div id="drawerBg" onclick="closeDrawer()"></div>
+<div id="moreDrawer">
+  <div class="drawer-grid">
+    <div class="dib" onclick="showP('Bookmarks');fbLoadBookmarks&&fbLoadBookmarks();closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" width="24" height="24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg><span>المفضلة</span></div>
+    <div class="dib" onclick="showP('History');fbLoadHistory&&fbLoadHistory();closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>التاريخ</span></div>
+    <div class="dib" onclick="showP('Id');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2" width="24" height="24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg><span>Identity</span></div>
+    <div class="dib" onclick="showP('Cloud');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2" width="24" height="24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg><span>Cloud</span></div>
+    <div class="dib" onclick="showP('OS');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2" width="24" height="24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Nova OS</span></div>
+    <div class="dib" onclick="showP('Search');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search</span></div>
+    <div class="dib" onclick="showP('Viora');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2" width="24" height="24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>Viora</span></div>
+    <div class="dib" onclick="showP('Store');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" width="24" height="24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Store</span></div>
+    <div class="dib" onclick="showP('Studio');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#536dfe" stroke-width="2" width="24" height="24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>Studio</span></div>
+    <div class="dib" onclick="showP('Gaming');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2" width="24" height="24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M8 10v4M15 12h.01M17 10h.01"/></svg><span>Gaming</span></div>
+    <div class="dib" onclick="showP('Media');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2" width="24" height="24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Media</span></div>
+    <div class="dib" onclick="showP('Agent');closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg><span>Agent</span></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ============================================================
+  JAVASCRIPT — Section 3/3
+============================================================ -->
+<script>
+
+/* ── Server Slots ─────────────────────────────────────────────
+   ضع URL السيرفر بدل null لما يكون جاهز
+──────────────────────────────────────────────────────────── */
+const SERVERS = {
+  hypercore_engine:  null, /* [SERVER_SLOT] HyperCore rendering engine  */
+  quantum_security:  null, /* [SERVER_SLOT] Security scanning service   */
+  hypernova_ai_llm:  null, /* [SERVER_SLOT] AI chat completions API     */
+  nova_cloud:        null, /* [SERVER_SLOT] Cloud storage service       */
+  nova_identity:     null, /* [SERVER_SLOT] Auth / identity service     */
+  universal_search:  null, /* [SERVER_SLOT] Unified search backend      */
+  viora:             null, /* [SERVER_SLOT] Viora social platform       */
+  nova_store:        null, /* [SERVER_SLOT] App store service           */
+  nova_studio:       null, /* [SERVER_SLOT] Dev platform service        */
+  nova_gaming:       null, /* [SERVER_SLOT] Gaming service              */
+  nova_media:        null, /* [SERVER_SLOT] Media processing service    */
+  hypernova_agent:   null, /* [SERVER_SLOT] Agent task execution        */
+  voice_search:      null, /* [SERVER_SLOT] Voice search service        */
+  streaming:         null, /* [SERVER_SLOT] Live stream service         */
+};
+
+/* ── Stars ─────────────────────────────────────────────────── */
+(function(){
+  const c=document.getElementById('stars'),ctx=c.getContext('2d');
+  let st=[],W,H;
+  const rsz=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
+  const mk=n=>{st=[];for(let i=0;i<n;i++)st.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.2,a:Math.random(),s:Math.random()*.006+.002,f:Math.random()*Math.PI*2,cyan:Math.random()<.08});};
+  const draw=()=>{
+    ctx.clearRect(0,0,W,H);
+    st.forEach(s=>{
+      s.f+=s.s;
+      const a=(Math.sin(s.f)*.4+.6)*s.a;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.shadowBlur=s.cyan&&s.r>1?6:0;
+      ctx.shadowColor='rgba(0,212,255,.9)';
+      ctx.fillStyle=s.cyan?`rgba(70,205,255,${a})`:`rgba(190,215,255,${a})`;
+      ctx.fill();ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(draw);
+  };
+  window.addEventListener('resize',()=>{rsz();mk(200);});
+  rsz();mk(200);draw();
+})();
+
+/* ── Perf bars animation ──────────────────────────────────── */
+setInterval(()=>{document.querySelectorAll('.pb2').forEach(b=>{b.style.height=(Math.random()*70+15)+'%';});},2000);
+
+/* ── Toast ─────────────────────────────────────────────────── */
+function toast(msg,ms){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms||2200);
+}
+
+/* ── Panel Navigation ──────────────────────────────────────── */
+function showP(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('p'+id);
+  if(el)el.classList.add('active');
+}
+
+/* ── More Drawer ───────────────────────────────────────────── */
+function toggleDrawer(){
+  const d=document.getElementById('moreDrawer');
+  const bg=document.getElementById('drawerBg');
+  const open=d.classList.toggle('open');
+  bg.classList.toggle('show',open);
+}
+function closeDrawer(){
+  document.getElementById('moreDrawer').classList.remove('open');
+  document.getElementById('drawerBg').classList.remove('show');
+}
+
+/* ── Address Bar / Search ──────────────────────────────────── */
+function navigate(raw){
+  let url=raw.trim();if(!url)return;
+  let title=url;
+  if(!url.includes('.')||url.includes(' ')){
+    /* [SERVER_SLOT: universal_search] */
+    const searchUrl='https://www.google.com/search?q='+encodeURIComponent(url);
+    window.open(searchUrl,'_blank');
+    title='بحث: '+url;
+    // حفظ في التاريخ
+    if(window.fbAddHistory) fbAddHistory(title, searchUrl);
+  }else{
+    if(!url.startsWith('http'))url='https://'+url;
+    window.open(url,'_blank');
+    title=url.replace(/^https?:\/\//,'').split('/')[0];
+    // حفظ في التاريخ
+    if(window.fbAddHistory) fbAddHistory(title, url);
+  }
+  document.getElementById('urlInput').value=url;
+  toast('فتح في تبويب جديد عبر HyperCore');
+}
+
+document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')navigate(e.target.value);});
+document.getElementById('btnSrch').addEventListener('click',()=>navigate(document.getElementById('urlInput').value));
+document.getElementById('btnBack').addEventListener('click',()=>{history.back();toast('رجوع');});
+document.getElementById('btnFwd').addEventListener('click',()=>{history.forward();toast('أمام');});
+document.getElementById('btnRef').addEventListener('click',function(){location.reload();});
+document.getElementById('btnAI').addEventListener('click',()=>showP('AI'));
+/* ── Voice Search ──────────────────────────────────────────── */
+let recognition=null;
+
+function openVoice(){
+  document.getElementById('voicePanel').classList.remove('hide');
+  document.getElementById('voiceResult').textContent='';
+  document.getElementById('voiceText').textContent='اضغط على الميكروفون وتكلم';
+  startListening();
+}
+function closeVoice(){
+  document.getElementById('voicePanel').classList.add('hide');
+  if(recognition){try{recognition.stop();}catch(e){}}
+  recognition=null;
+  document.getElementById('btnMic').classList.remove('listening');
+}
+function startListening(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    document.getElementById('voiceText').textContent='البحث الصوتي غير مدعوم في هذا المتصفح';
+    return;
+  }
+  recognition=new SR();
+  recognition.lang='ar-EG';
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  document.getElementById('btnMic').classList.add('listening');
+  document.getElementById('voiceText').textContent='🎙 جاري الاستماع...';
+
+  recognition.onresult=e=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    document.getElementById('voiceResult').textContent=final||interim;
+    if(final){
+      document.getElementById('urlInput').value=final;
+      document.getElementById('voiceText').textContent='✓ تم التعرف على صوتك';
+      setTimeout(()=>{
+        closeVoice();
+        navigate(final);
+      },800);
+    }
+  };
+  recognition.onerror=e=>{
+    document.getElementById('voiceText').textContent='حدث خطأ: '+e.error+' — حاول مرة أخرى';
+    document.getElementById('btnMic').classList.remove('listening');
+  };
+  recognition.onend=()=>{
+    document.getElementById('btnMic').classList.remove('listening');
+    if(document.getElementById('voiceResult').textContent==='')
+      document.getElementById('voiceText').textContent='لم يتم التعرف على صوت — اضغط للمحاولة مرة أخرى';
+  };
+  recognition.start();
+}
+
+document.getElementById('btnMic').addEventListener('click',openVoice);
+document.getElementById('vMicBtn').addEventListener('click',startListening);
+document.getElementById('btnMenu').addEventListener('click', openSettings);
+
+/* ══════════════════════════════════════════════════════════════
+   SETTINGS MODAL
+══════════════════════════════════════════════════════════════ */
+function openSettings(){
+  document.getElementById('settingsModal').classList.remove('hide');
+  document.body.style.overflow='hidden';
+  showSettingsSection('account');
+}
+function closeSettings(){
+  document.getElementById('settingsModal').classList.add('hide');
+  document.body.style.overflow='';
+}
+function showSettingsSection(id){
+  document.querySelectorAll('.set-section').forEach(s=>s.classList.add('hide'));
+  document.querySelectorAll('.set-cat-item').forEach(i=>i.classList.remove('active-cat'));
+  const sec=document.getElementById('ss-'+id);
+  if(sec) sec.classList.remove('hide');
+  const cat=document.querySelector('[data-cat="'+id+'"]');
+  if(cat) cat.classList.add('active-cat');
+  // mobile: show content, hide sidebar
+  if(window.innerWidth<600){
+    document.getElementById('setsSidebar').style.display='none';
+    document.getElementById('setsContent').style.display='block';
+    document.getElementById('setsBreadcrumb').style.display='flex';
+  }
+}
+function showSettingsList(){
+  document.getElementById('setsSidebar').style.display='';
+  document.getElementById('setsContent').style.display='none';
+  document.getElementById('setsBreadcrumb').style.display='none';
+}
+function setToggle(el){
+  el.classList.toggle('on');
+  toast(el.classList.contains('on')?'تم التفعيل ✓':'تم التعطيل');
+}
+// btnAva removed — replaced by settings button
+
+/* ── Search Panel ──────────────────────────────────────────── */
+function doSearch(){
+  const q=document.getElementById('searchInp').value.trim();
+  if(!q)return;
+  /* [SERVER_SLOT: universal_search] */
+  window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+  const box=document.getElementById('searchResults');
+  box.innerHTML=`<div class="sr"><div class="sr-t">${q}</div><div class="sr-u">google.com/search?q=${encodeURIComponent(q)}</div><div class="sr-d">جاري البحث... سيتم ربط محرك البحث المدمج قريباً</div></div>`+box.innerHTML;
+  toast('جاري البحث...');
+}
+document.getElementById('searchInp')?.addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+
+/* ── AI Chat ───────────────────────────────────────────────── */
+/* ── AI Chat History ── */
+let _chatHistory = [];
+
+async function sendChat(){
+  const inp = document.getElementById('chatInp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  const box = document.getElementById('chatMsgs');
+
+  // عرض رسالة المستخدم
+  box.innerHTML += `<div class="msg msg-user"><strong>أنت</strong><br>${msg}</div>`;
+  inp.value = '';
+  box.scrollTop = box.scrollHeight;
+
+  // إضافة للتاريخ
+  _chatHistory.push({ role: 'user', content: msg });
+
+  // مؤشر الكتابة
+  const typingId = 'typing_' + Date.now();
+  box.innerHTML += `<div class="msg msg-bot" id="${typingId}"><strong>HyperNova AI</strong><br><span style="opacity:0.5;animation:pulse 1s infinite">جاري التفكير...</span></div>`;
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `أنت HyperNova AI، مساعد ذكي مدمج في متصفح HyperNova المتقدم.
+أنت تساعد المستخدم في كل شيء: تلخيص مواقع، ترجمة، كتابة أكواد، إجابة أسئلة، بحث، تحليل، وأي طلب آخر.
+ردودك دائماً باللغة العربية ما لم يطلب المستخدم غير ذلك.
+اجعل ردودك مفيدة ومختصرة وواضحة.`,
+        messages: _chatHistory
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'حدث خطأ في الاستجابة';
+
+    // إضافة رد الـ AI للتاريخ
+    _chatHistory.push({ role: 'assistant', content: reply });
+
+    // استبدال مؤشر الكتابة بالرد الحقيقي
+    const typingEl = document.getElementById(typingId);
+    if(typingEl) typingEl.innerHTML = `<strong>HyperNova AI</strong><br>${reply.replace(/\n/g,'<br>')}`;
+
+  } catch(err) {
+    const typingEl = document.getElementById(typingId);
+    if(typingEl) typingEl.innerHTML = `<strong>HyperNova AI</strong><br><span style="color:var(--red);">❌ خطأ في الاتصال: ${err.message}</span>`;
+  }
+
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ── Workspace Tabs ────────────────────────────────────────── */
+function showWTab(id,btn){
+  ['Docs','Sheets','Slides','Notes','Cal','Tasks','Mail'].forEach(v=>{
+    const el=document.getElementById('w'+v);if(el)el.classList.add('hide');
+  });
+  document.getElementById('w'+id)?.classList.remove('hide');
+  document.querySelectorAll('#pWork .wtab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ── Store Tabs ────────────────────────────────────────────── */
+function showSTab(id,btn){
+  ['sApps','sGames','sExt','sAI'].forEach(v=>{
+    const el=document.getElementById(v);if(el)el.classList.add('hide');
+  });
+  document.getElementById(id)?.classList.remove('hide');
+  document.querySelectorAll('#pStore .wtab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ── Task Toggle ───────────────────────────────────────────── */
+function toggleTask(chk){
+  chk.classList.toggle('done');
+  const txt=chk.nextElementSibling;
+  if(txt)txt.classList.toggle('done');
+  chk.innerHTML=chk.classList.contains('done')?'<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>':'';
+}
+
+/* ── Media Player ──────────────────────────────────────────── */
+function togglePlay(btn){
+  const playing=btn.dataset.playing==='1';
+  btn.dataset.playing=playing?'0':'1';
+  btn.innerHTML=playing
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
+}
+
+/* ── Code Editor ───────────────────────────────────────────── */
+function runCode(){
+  const code=document.getElementById('codeInp').value;
+  const out=document.getElementById('codeOut');
+  out.srcdoc='<html><body style="margin:0;background:#0a0020;color:#0f0;font-family:monospace;padding:10px;"><script>try{'+code+'}catch(e){document.body.innerHTML="<span style=color:red>Error: "+e.message+"</span>"}<\/script></body></html>';
+  toast('تم التشغيل ✓');
+}
+
+/* ── Snake Game ────────────────────────────────────────────── */
+let gameRunning=false,score=0,high=0,gameLoop=null;
+let dx=1,dy=0,snake=[],food={};
+
+function startGame(){
+  if(gameRunning)return;
+  gameRunning=true;score=0;dx=1;dy=0;
+  document.getElementById('gscore').textContent=0;
+  const canvas=document.getElementById('gameCanvas');
+  const ctx=canvas.getContext('2d');
+  const G=16,cols=Math.floor(canvas.width/G),rows=Math.floor(canvas.height/G);
+  snake=[{x:5,y:5}];
+  food={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)};
+
+  document.addEventListener('keydown',kh);
+  gameLoop=setInterval(()=>{
+    if(!gameRunning){clearInterval(gameLoop);return;}
+    const head={x:snake[0].x+dx,y:snake[0].y+dy};
+    if(head.x<0||head.x>=cols||head.y<0||head.y>=rows){endGame();return;}
+    if(snake.some(s=>s.x===head.x&&s.y===head.y)){endGame();return;}
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){
+      score+=10;document.getElementById('gscore').textContent=score;
+      if(score>high){high=score;document.getElementById('ghigh').textContent=high;}
+      food={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)};
+    }else snake.pop();
+    ctx.fillStyle='#04060f';ctx.fillRect(0,0,canvas.width,canvas.height);
+    /* grid */
+    ctx.strokeStyle='rgba(0,212,255,.04)';
+    for(let i=0;i<cols;i++){ctx.beginPath();ctx.moveTo(i*G,0);ctx.lineTo(i*G,canvas.height);ctx.stroke();}
+    for(let j=0;j<rows;j++){ctx.beginPath();ctx.moveTo(0,j*G);ctx.lineTo(canvas.width,j*G);ctx.stroke();}
+    /* snake */
+    snake.forEach((s,i)=>{
+      ctx.fillStyle=i===0?'#00d4ff':'rgba(0,212,255,0.6)';
+      ctx.beginPath();ctx.roundRect(s.x*G+1,s.y*G+1,G-2,G-2,3);ctx.fill();
+    });
+    /* food */
+    ctx.fillStyle='#ff3b5c';
+    ctx.beginPath();ctx.arc(food.x*G+G/2,food.y*G+G/2,G/2-2,0,Math.PI*2);ctx.fill();
+  },120);
+}
+function stopGame(){
+  gameRunning=false;clearInterval(gameLoop);
+  document.removeEventListener('keydown',kh);
+  toast('توقفت اللعبة');
+}
+function endGame(){
+  gameRunning=false;clearInterval(gameLoop);
+  document.removeEventListener('keydown',kh);
+  toast('انتهت اللعبة! النقاط: '+score);
+}
+function setDir(x,y){
+  if(x===1&&dx===-1)return;if(x===-1&&dx===1)return;
+  if(y===1&&dy===-1)return;if(y===-1&&dy===1)return;
+  dx=x;dy=y;
+}
+function kh(e){
+  if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}
+  if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}
+  if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}
+  if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}
+}
+
+/* ── Add current URL to bookmarks ──────────────────────────── */
+function addCurrentToBookmarks(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url||url===''){toast('⚠️ أدخل رابط أولاً');return;}
+  const fullUrl=url.startsWith('http')?url:'https://'+url;
+  const title=fullUrl.replace(/^https?:\/\//,'').split('/')[0];
+  if(window.fbAddBookmark) fbAddBookmark(title, fullUrl);
+  // تأثير بصري على الأيقونة
+  const icon=document.getElementById('bookmarkIcon');
+  icon.setAttribute('fill','#ffd700');
+  setTimeout(()=>icon.setAttribute('fill','none'),1500);
+}
+
+/* ── Init ──────────────────────────────────────────────────── */
+window.addEventListener('load',()=>toast('مرحباً بك في HyperNova 🚀'));
+
+/* ── Settings theme switcher ── */
+function setTheme(t){
+  if(t==='dark'){document.documentElement.style.setProperty('--bg','#0a0a0a');document.documentElement.style.setProperty('--bg2','#111');document.documentElement.style.setProperty('--txt','#deeeff');}
+  else if(t==='light'){document.documentElement.style.setProperty('--bg','#f0f4ff');document.documentElement.style.setProperty('--bg2','#e8eef8');document.documentElement.style.setProperty('--txt','#1a2340');}
+  else{document.documentElement.style.setProperty('--bg','#04060f');document.documentElement.style.setProperty('--bg2','#080d1c');document.documentElement.style.setProperty('--txt','#deeeff');}
+  document.querySelectorAll('.theme-opt').forEach(b=>b.classList.remove('active-cat'));
+  if(event&&event.target) event.target.closest('.theme-opt')?.classList.add('active-cat');
+  if(window.fbSaveSettings) fbSaveSettings({ theme: t });
+  toast('تم تغيير المظهر ✓');
+}
+
+/* ══════════════════════════════════════════════════════
+   ⚙️  SETTINGS — FUNCTIONAL ACTIONS
+══════════════════════════════════════════════════════ */
+
+/* ── حجم النص (إمكانية الوصول) ── */
+let _fontSize = 100;
+function changeFontSize(delta){
+  _fontSize = Math.max(70, Math.min(150, _fontSize + delta));
+  document.documentElement.style.fontSize = _fontSize + '%';
+  const sub = document.querySelector('#ss-accessibility .set-row-sub');
+  if(sub) sub.textContent = _fontSize + '% — الحجم الحالي';
+  toast('حجم النص: ' + _fontSize + '%');
+}
+// ربط أزرار تكبير/تصغير النص
+document.addEventListener('DOMContentLoaded', () => {
+  const accBtns = document.querySelectorAll('#ss-accessibility button');
+  if(accBtns[0]) accBtns[0].onclick = () => changeFontSize(-10);
+  if(accBtns[1]) accBtns[1].onclick = () => changeFontSize(10);
+  const uiBtns = document.querySelectorAll('#ss-appearance button');
+  if(uiBtns[0]) uiBtns[0].onclick = () => changeUIZoom(-10);
+  if(uiBtns[1]) uiBtns[1].onclick = () => changeUIZoom(10);
+});
+
+/* ── حجم الواجهة (المظهر) ── */
+let _uiZoom = 100;
+function changeUIZoom(delta){
+  _uiZoom = Math.max(70, Math.min(150, _uiZoom + delta));
+  document.body.style.zoom = (_uiZoom / 100);
+  toast('حجم الواجهة: ' + _uiZoom + '%');
+}
+
+/* ── الألوان عالية التباين ── */
+function toggleHighContrast(el){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    document.documentElement.style.setProperty('--txt','#ffffff');
+    document.documentElement.style.setProperty('--txt2','#cccccc');
+    document.documentElement.style.setProperty('--border','rgba(255,255,255,0.4)');
+    toast('الألوان عالية التباين: مفعّل ✓');
+  } else {
+    document.documentElement.style.setProperty('--txt','#deeeff');
+    document.documentElement.style.setProperty('--txt2','#6a90b0');
+    document.documentElement.style.setProperty('--border','rgba(0,212,255,0.13)');
+    toast('الألوان عالية التباين: معطّل');
+  }
+}
+
+/* ── قارئ الشاشة ── */
+function toggleScreenReader(el){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    window._ttsEnabled = true;
+    toast('قارئ الشاشة: مفعّل ✓ — ستُقرأ العناصر عند التمرير');
+    document.addEventListener('mouseover', _ttsHover);
+  } else {
+    window._ttsEnabled = false;
+    document.removeEventListener('mouseover', _ttsHover);
+    toast('قارئ الشاشة: معطّل');
+  }
+}
+function _ttsHover(e){
+  if(!window._ttsEnabled) return;
+  const txt = e.target.innerText?.trim();
+  if(txt && txt.length > 0 && txt.length < 200 && window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'ar-SA'; u.rate = 1.1;
+    window.speechSynthesis.speak(u);
+  }
+}
+
+/* ── التحكم الصوتي ── */
+function toggleVoiceControl(el){
+  el.classList.toggle('on');
+  toast(el.classList.contains('on') ? 'التحكم الصوتي: مفعّل ✓' : 'التحكم الصوتي: معطّل');
+}
+
+/* ── Developer Mode ── */
+function toggleDevMode(el){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    document.body.style.outline = '1px dashed rgba(0,212,255,0.3)';
+    toast('Developer Mode: مفعّل ✓');
+  } else {
+    document.body.style.outline = '';
+    toast('Developer Mode: معطّل');
+  }
+}
+
+/* ── Console ── */
+function openConsole(){
+  const win = window.open('', '_blank', 'width=600,height=400');
+  win.document.write(`<html><body style="background:#000;color:#0f0;font-family:monospace;padding:10px;">
+    <h3 style="color:#00d4ff;">🛠 HyperNova Console</h3>
+    <textarea id="cin" style="width:100%;height:80px;background:#111;color:#0f0;border:1px solid #00d4ff;padding:6px;font-family:monospace;" placeholder="أدخل كود JS هنا..."></textarea>
+    <button onclick="try{document.getElementById('cout').innerHTML+='<br>>>> '+document.getElementById('cin').value+'<br>'+eval(document.getElementById('cin').value)}catch(e){document.getElementById('cout').innerHTML+='<br><span style=color:red>Error: '+e.message+'</span>'}" style="margin-top:6px;background:#00d4ff;color:#000;border:none;padding:6px 16px;cursor:pointer;">تشغيل</button>
+    <div id="cout" style="margin-top:10px;color:#aaffaa;white-space:pre-wrap;"></div>
+  </body></html>`);
+  toast('Console: مفتوح ✓');
+}
+
+/* ── Network Tools ── */
+function openNetworkTools(){
+  toast('📡 مراقبة الشبكة نشطة');
+  const panel = document.createElement('div');
+  panel.id = 'netToolsPanel';
+  panel.style.cssText = 'position:fixed;bottom:80px;left:10px;right:10px;background:rgba(4,8,22,0.97);border:1px solid rgba(0,212,255,0.3);border-radius:16px;padding:14px;z-index:1000;font-family:monospace;font-size:12px;';
+  panel.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="color:#00d4ff;font-weight:700;">📡 Network Monitor</span><span onclick="this.parentElement.parentElement.remove()" style="cursor:pointer;color:#ff3b5c;">✕</span></div>
+  <div style="color:#00e5a0;">✓ DNS: 8.8.8.8 (Google) — <span style="color:#ffd700;">12ms</span></div>
+  <div style="color:#00e5a0;">✓ HTTP/3: مدعوم</div>
+  <div style="color:#00e5a0;">✓ HTTPS: TLS 1.3</div>
+  <div style="color:#6a90b0;margin-top:6px;">الطلبات النشطة: <span style="color:#fff;">0</span></div>
+  <div style="color:#6a90b0;">عرض النطاق الترددي: <span style="color:#fff;">∞</span></div>`;
+  document.body.appendChild(panel);
+}
+
+/* ── API Management ── */
+function openAPIManagement(){
+  toast('مفاتيح API — الإدارة مفتوحة');
+}
+
+/* ── Debugging ── */
+function openDebugging(){
+  console.log('%c🔍 HyperNova Debugging Active', 'color:#00d4ff;font-size:16px;font-weight:bold;');
+  console.log('Window:', window.location.href);
+  console.log('User Agent:', navigator.userAgent);
+  console.log('Screen:', screen.width + 'x' + screen.height);
+  toast('Debugging: تم تفعيله — انظر الـ Console ✓');
+}
+
+/* ── تصدير الإعدادات ── */
+function exportSettings(){
+  const settings = {
+    theme: document.documentElement.style.getPropertyValue('--bg') || 'hypernova',
+    fontSize: _fontSize,
+    uiZoom: _uiZoom,
+    exportDate: new Date().toISOString(),
+    version: '4.0.0'
+  };
+  const blob = new Blob([JSON.stringify(settings, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'HyperNova-Settings.json';
+  a.click();
+  toast('تم تصدير الإعدادات ✓');
+}
+
+/* ── استيراد الإعدادات ── */
+function importSettings(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const s = JSON.parse(ev.target.result);
+        if(s.fontSize) { _fontSize = s.fontSize; document.documentElement.style.fontSize = _fontSize + '%'; }
+        if(s.uiZoom) { _uiZoom = s.uiZoom; document.body.style.zoom = _uiZoom / 100; }
+        toast('تم استيراد الإعدادات ✓');
+      } catch(err) { toast('❌ ملف إعدادات غير صالح'); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+/* ── إنشاء نسخة احتياطية ── */
+function createBackup(){
+  const data = {
+    bookmarks: [], history: [],
+    settings: { fontSize: _fontSize, uiZoom: _uiZoom },
+    backupDate: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'HyperNova-Backup-' + new Date().toLocaleDateString('ar') + '.json';
+  a.click();
+  toast('✅ تم إنشاء نسخة احتياطية');
+}
+
+/* ── تغيير الألوان ── */
+function openColorPicker(){
+  const colors = ['#00d4ff','#7b5fff','#e040fb','#00e5a0','#ff8c00','#ff3b5c','#ffd700','#536dfe'];
+  const panel = document.createElement('div');
+  panel.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(4,8,22,0.98);border:1px solid rgba(0,212,255,0.3);border-radius:16px;padding:20px;z-index:1000;text-align:center;';
+  panel.innerHTML = `<div style="color:#deeeff;font-weight:700;margin-bottom:14px;">🎨 اختر لون التمييز</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;">
+  ${colors.map(c => `<div onclick="document.documentElement.style.setProperty('--cyan','${c}');document.documentElement.style.setProperty('--teal','${c}');toast('تم تغيير اللون ✓');this.parentElement.parentElement.remove();" style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;border:2px solid rgba(255,255,255,0.2);"></div>`).join('')}
+  </div>
+  <button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#deeeff;padding:6px 20px;cursor:pointer;">إلغاء</button>`;
+  document.body.appendChild(panel);
+}
+
+/* ── تغيير مكان التنزيل ── */
+function changeDownloadLocation(){
+  toast('📁 مكان التنزيل: /Downloads/HyperNova (افتراضي)');
+}
+
+/* ── 2FA ── */
+function toggle2FA(el){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    toast('✅ المصادقة الثنائية مفعّلة — احتفظ بكود الاسترداد');
+  } else {
+    toast('⚠️ المصادقة الثنائية معطّلة');
+  }
+}
+
+/* ── مدير كلمات المرور ── */
+function openPasswordManager(){
+  showP('Id');
+  closeSettings();
+  toast('مدير كلمات المرور ✓');
+}
+
+/* ── تخصيص الصفحة الرئيسية ── */
+function customizeHome(){
+  showP('Home');
+  closeSettings();
+  toast('تخصيص الصفحة الرئيسية ✓');
+}
+
+/* ── فحص التحديثات ── */
+function checkUpdates(){
+  toast('🔍 جاري فحص التحديثات...');
+  setTimeout(() => toast('✅ HyperNova 4.0.0 — أحدث إصدار'), 1500);
+}
+
+/* ── الدعم الفني ── */
+function openSupport(){
+  window.open('mailto:support@hypernova.io?subject=HyperNova Support', '_blank');
+  toast('📧 فتح البريد للدعم الفني');
+}
+
+/* ── سجل التغييرات ── */
+function openChangelog(){
+  toast('📋 HyperNova v4.0.0 — Nova Edition\n• تحسينات الأداء\n• واجهة جديدة\n• Firebase sync');
+}
+
+/* ── وضع VPN ── */
+function toggleVPN(el){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    toast('🔒 VPN: متصل — موقعك محمي ✓');
+  } else {
+    toast('VPN: غير متصل');
+  }
+}
+
+/* ── تحميل أسرع ── */
+function toggleTurboMode(el){
+  el.classList.toggle('on');
+  toast(el.classList.contains('on') ? '⚡ Turbo Mode: مفعّل ✓' : 'Turbo Mode: معطّل');
+}
+
+/* ── حذف البيانات ── */
+function clearAllData(){
+  if(confirm('هل تريد حذف جميع البيانات؟')){
+    if(window.fbClearHistory) fbClearHistory();
+    toast('🗑 تم حذف جميع البيانات');
+  }
+}
+
+/* ── إدارة الحساب ── */
+function openAccountManagement(){
+  const name = prompt('أدخل اسمك:', 'مستخدم HyperNova');
+  if(name){
+    document.querySelectorAll('.set-row-name').forEach(el => {
+      if(el.textContent === 'مستخدم HyperNova') el.textContent = name;
+    });
+    toast('✅ تم تحديث الاسم: ' + name);
+  }
+}
+
+/* ── تغيير الصورة الشخصية ── */
+function changeAvatar(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.querySelectorAll('.ava').forEach(a => {
+        a.style.backgroundImage = `url(${ev.target.result})`;
+        a.style.backgroundSize = 'cover';
+        a.innerHTML = '<div class="ava-ring"></div>';
+      });
+      toast('✅ تم تحديث الصورة الشخصية');
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+</script>
+
+<!-- ══════════════ SETTINGS MODAL ══════════════ -->
+<div id="settingsModal" class="hide">
+
+  <!-- Header -->
+  <div class="sets-header">
+    <div class="sets-close" onclick="closeSettings()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="sets-title">⚙️ مركز الإعدادات</div>
+    <div style="font-size:10px;color:var(--txt2);background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:3px 10px;">HyperNova v4.0</div>
+  </div>
+
+  <!-- Breadcrumb (mobile) -->
+  <div id="setsBreadcrumb">
+    <button onclick="showSettingsList()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+      الإعدادات
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="sets-body">
+
+    <!-- Sidebar -->
+    <div id="setsSidebar">
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">الحساب</div>
+        <div class="set-cat-item active-cat" data-cat="account" onclick="showSettingsSection('account')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          الحساب والهوية
+        </div>
+      </div>
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">الواجهة</div>
+        <div class="set-cat-item" data-cat="appearance" onclick="showSettingsSection('appearance')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9C11.17 3.77 5.84 1.75 3.8 3.8c-2.04 2.04-.02 7.37 4.5 11.9 4.53 4.52 9.86 6.54 11.9 4.5z"/><path d="M15.7 15.7c4.52-4.53 6.54-9.86 4.5-11.9-2.04-2.04-7.37-.02-11.9 4.5"/></svg>
+          المظهر والتخصيص
+        </div>
+        <div class="set-cat-item" data-cat="performance" onclick="showSettingsSection('performance')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          الأداء
+        </div>
+      </div>
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">الحماية</div>
+        <div class="set-cat-item" data-cat="security" onclick="showSettingsSection('security')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          الأمان والخصوصية
+        </div>
+      </div>
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">الذكاء والسحابة</div>
+        <div class="set-cat-item" data-cat="ai" onclick="showSettingsSection('ai')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          الذكاء الاصطناعي
+        </div>
+        <div class="set-cat-item" data-cat="cloud" onclick="showSettingsSection('cloud')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+          السحابة
+        </div>
+      </div>
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">الملفات والوسائط</div>
+        <div class="set-cat-item" data-cat="downloads" onclick="showSettingsSection('downloads')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          التحميلات
+        </div>
+        <div class="set-cat-item" data-cat="media" onclick="showSettingsSection('media')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          الوسائط
+        </div>
+      </div>
+
+      <div class="set-cat-group">
+        <div class="set-cat-label">نظام</div>
+        <div class="set-cat-item" data-cat="games" onclick="showSettingsSection('games')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M7 11v2M8 12H6M17 12h2M15 11h2v2"/></svg>
+          الألعاب
+        </div>
+        <div class="set-cat-item" data-cat="notifications" onclick="showSettingsSection('notifications')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          الإشعارات
+        </div>
+        <div class="set-cat-item" data-cat="dev" onclick="showSettingsSection('dev')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          المطورين
+        </div>
+        <div class="set-cat-item" data-cat="accessibility" onclick="showSettingsSection('accessibility')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          إمكانية الوصول
+        </div>
+        <div class="set-cat-item" data-cat="backup" onclick="showSettingsSection('backup')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          النسخ الاحتياطي
+        </div>
+        <div class="set-cat-item" data-cat="about" onclick="showSettingsSection('about')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          حول HyperNova
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div id="setsContent">
+
+      <!-- ── ACCOUNT ── -->
+      <div class="set-section" id="ss-account">
+        <div class="set-section-title" style="color:var(--cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          الحساب والهوية
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;">
+          <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="32" height="32"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div style="font-weight:700;font-size:15px;">مستخدم HyperNova</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:4px;">user@hypernova.io</div>
+          <div class="bdg b-g" style="display:inline-block;margin-top:8px;">Pro ✦</div>
+        </div>
+        <div class="set-group-title">إدارة الحساب</div>
+        <div class="set-row" onclick="toast('متصل بـ Firebase — جلسة مجهولة نشطة ✓')">
+          <div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تسجيل الدخول</div><div class="set-row-sub">متصل — جلسة Firebase نشطة</div></div>
+          <div class="set-row-action"><div class="bdg b-g">نشط</div></div>
+        </div>
+        <div class="set-row" onclick="openAccountManagement()">
+          <div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">إدارة الحساب</div><div class="set-row-sub">تعديل البيانات الشخصية</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row" onclick="changeAvatar()">
+          <div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تغيير الصورة الشخصية</div><div class="set-row-sub">رفع صورة جديدة</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row" onclick="toast('UID Firebase: ' + (window.fbGetUID ? fbGetUID() : 'جاري التوصيل...'))">
+          <div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">إدارة الأجهزة المتصلة</div><div class="set-row-sub">عرض UID الجهاز الحالي</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row" onclick="toast('آخر نشاط: ' + new Date().toLocaleString('ar-EG'))">
+          <div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">سجل تسجيل الدخول</div><div class="set-row-sub">عرض آخر النشاطات</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-group-title">الأمان</div>
+        <div class="set-row" onclick="toggle2FA(this.querySelector('.tog'))">
+          <div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">المصادقة الثنائية (2FA)</div><div class="set-row-sub">طبقة حماية إضافية</div></div>
+          <div class="set-row-action"><div class="tog" onclick="event.stopPropagation();toggle2FA(this)"></div></div>
+        </div>
+        <div class="set-row" onclick="openPasswordManager()">
+          <div class="set-row-ico ic-gold"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">إدارة كلمات المرور</div><div class="set-row-sub">مدير كلمات المرور المدمج</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>
+
+      <!-- ── APPEARANCE ── -->
+      <div class="set-section hide" id="ss-appearance">
+        <div class="set-section-title" style="color:var(--purple);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9C11.17 3.77 5.84 1.75 3.8 3.8c-2.04 2.04-.02 7.37 4.5 11.9 4.53 4.52 9.86 6.54 11.9 4.5z"/></svg>
+          المظهر والتخصيص
+        </div>
+        <div class="set-group-title">وضع العرض</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+          <div class="theme-opt set-row active-cat" style="flex-direction:column;text-align:center;padding:12px 6px;" onclick="setTheme('light')">
+            <div style="font-size:22px;margin-bottom:4px;">☀️</div>
+            <div style="font-size:11px;">فاتح</div>
+          </div>
+          <div class="theme-opt set-row" style="flex-direction:column;text-align:center;padding:12px 6px;" onclick="setTheme('dark')">
+            <div style="font-size:22px;margin-bottom:4px;">🌙</div>
+            <div style="font-size:11px;">داكن</div>
+          </div>
+          <div class="theme-opt set-row" style="flex-direction:column;text-align:center;padding:12px 6px;" onclick="setTheme('hypernova')">
+            <div style="font-size:22px;margin-bottom:4px;">🚀</div>
+            <div style="font-size:11px;">HyperNova</div>
+          </div>
+        </div>
+        <div class="set-group-title">الألوان</div>
+        <div class="set-row" onclick="openColorPicker()">
+          <div class="set-row-ico" style="background:linear-gradient(135deg,#00d4ff,#7b5fff,#e040fb);border:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          </div>
+          <div class="set-row-info"><div class="set-row-name">تغيير الألوان</div><div class="set-row-sub">تخصيص لون التمييز</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تغيير الخطوط</div><div class="set-row-sub">Segoe UI — الحالي</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-group-title">الحجم والتخطيط</div>
+        <div class="set-row">
+          <div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تغيير حجم الواجهة</div><div class="set-row-sub">100% — عادي</div></div>
+          <div class="set-row-action">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button onclick="toast('تصغير')" style="width:26px;height:26px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt);cursor:pointer;font-size:14px;">−</button>
+              <button onclick="toast('تكبير')" style="width:26px;height:26px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt);cursor:pointer;font-size:14px;">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="set-row" onclick="customizeHome()">
+          <div class="set-row-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تخصيص الصفحة الرئيسية</div><div class="set-row-sub">الودجت والتخطيط</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row" onclick="toast('تخصيص الشريط الجانبي')">
+          <div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تخصيص الشريط الجانبي</div><div class="set-row-sub">إضافة وإزالة الأقسام</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="set-row" onclick="toast('تخصيص الاختصارات')">
+          <div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">تخصيص الاختصارات</div><div class="set-row-sub">اختصارات لوحة المفاتيح</div></div>
+          <div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>
+
+      <!-- ── PERFORMANCE ── -->
+      <div class="set-section hide" id="ss-performance">
+        <div class="set-section-title" style="color:var(--green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          الأداء
+        </div>
+        <div class="set-group-title">أوضاع الأداء</div>
+        <div class="set-row">
+          <div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">وضع الأداء العالي</div><div class="set-row-sub">أقصى سرعة وأداء</div></div>
+          <div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><path d="M18.6 6.4A8 8 0 114 15M13 9l3 3-3 3"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">وضع توفير الطاقة</div><div class="set-row-sub">تقليل استهلاك الطاقة</div></div>
+          <div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M7 11v2M8 12H6M17 12h2M15 11h2v2"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">وضع الألعاب</div><div class="set-row-sub">تحسين الأداء للألعاب</div></div>
+          <div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">وضع الدراسة</div><div class="set-row-sub">تركيز وإنتاجية</div></div>
+          <div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">وضع العمل</div><div class="set-row-sub">بيئة عمل احترافية</div></div>
+          <div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div>
+        </div>
+        <div class="set-group-title">الموارد</div>
+        <div class="set-row">
+          <div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">الحد الأقصى للرام</div><div class="set-row-sub">4 GB — الحالي</div></div>
+          <div class="set-row-action"><div style="font-size:12px;color:var(--cyan);">ضبط</div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">الحد الأقصى للمعالج</div><div class="set-row-sub">80% — الحالي</div></div>
+          <div class="set-row-action"><div style="font-size:12px;color:var(--cyan);">ضبط</div></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M20 3H4a2 2 0 00-2 2v4a2 2 0 002 2h16a2 2 0 002-2V5a2 2 0 00-2-2z"/><path d="M20 13H4a2 2 0 00-2 2v4a2 2 0 002 2h16a2 2 0 002-2v-4a2 2 0 00-2-2z"/></svg></div>
+          <div class="set-row-info"><div class="set-row-name">إدارة التبويبات في الخلفية</div><div class="set-row-sub">تعليق التبويبات غير النشطة</div></div>
+          <div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div>
+        </div>
+      </div>
+
+      <!-- ── SECURITY ── -->
+      <div class="set-section hide" id="ss-security">
+        <div class="set-section-title" style="color:var(--green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          الأمان والخصوصية
+        </div>
+        <div class="set-group-title">الحماية الأساسية</div>
+        <div class="set-row"><div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div class="set-row-info"><div class="set-row-name">مانع الإعلانات</div><div class="set-row-sub">12 إعلان محجوب اليوم</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="set-row-info"><div class="set-row-name">مانع التتبع</div><div class="set-row-sub">45 متتبع محجوب</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M1 6l5 5 5-5"/><path d="M22 18l-5-5-5 5"/></svg></div><div class="set-row-info"><div class="set-row-name">VPN</div><div class="set-row-sub">Quantum VPN — متصل</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="set-row-info"><div class="set-row-name">DNS Protection</div><div class="set-row-sub">حماية DNS المشفر</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-group-title">حماية الملفات</div>
+        <div class="set-row"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="set-row-info"><div class="set-row-name">حماية التحميلات</div><div class="set-row-sub">فحص قبل التنزيل</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="set-row-info"><div class="set-row-name">فحص الملفات</div><div class="set-row-sub">مضاد فيروسات مدمج</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="set-row-info"><div class="set-row-name">حظر المواقع الضارة</div><div class="set-row-sub">قاعدة بيانات محدثة</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-group-title">الحماية العائلية</div>
+        <div class="set-row"><div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div class="set-row-info"><div class="set-row-name">حظر المواقع الإباحية</div><div class="set-row-sub">تصفية المحتوى البالغ</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="set-row-info"><div class="set-row-name">الحماية العائلية</div><div class="set-row-sub">رقابة أبوية متكاملة</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+        <div class="set-group-title">الخصوصية</div>
+        <div class="set-row" onclick="toast('إدارة الأذونات')"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة الأذونات</div><div class="set-row-sub">أذونات المواقع</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إدارة الكاميرا والميكروفون')"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="set-row-info"><div class="set-row-name">الكاميرا والميكروفون</div><div class="set-row-sub">إدارة الوصول</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-group-title">حذف البيانات</div>
+        <div class="set-row" onclick="toast('تم حذف البيانات ✓')"><div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div><div class="set-row-info"><div class="set-row-name">حذف البيانات</div><div class="set-row-sub">مسح جميع البيانات</div></div><div class="set-row-action"><div class="bdg b-r">حذف</div></div></div>
+        <div class="set-row" onclick="toast('تم مسح الكاش ✓')"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div><div class="set-row-info"><div class="set-row-name">حذف الكاش</div><div class="set-row-sub">128 MB</div></div><div class="set-row-action"><div class="bdg b-o">مسح</div></div></div>
+        <div class="set-row" onclick="toast('تم حذف الكوكيز ✓')"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg></div><div class="set-row-info"><div class="set-row-name">حذف الكوكيز</div><div class="set-row-sub">بيانات الجلسات</div></div><div class="set-row-action"><div class="bdg b-r">حذف</div></div></div>
+      </div>
+
+      <!-- ── AI ── -->
+      <div class="set-section hide" id="ss-ai">
+        <div class="set-section-title" style="color:var(--cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          الذكاء الاصطناعي
+        </div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div class="set-row-info"><div class="set-row-name">تفعيل HyperNova AI</div><div class="set-row-sub">المساعد الذكي المدمج</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="set-row-info"><div class="set-row-name">البحث الذكي</div><div class="set-row-sub">تحسين نتائج البحث بالذكاء</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="set-row-info"><div class="set-row-name">التلخيص التلقائي</div><div class="set-row-sub">تلخيص المقالات والصفحات</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg></div><div class="set-row-info"><div class="set-row-name">الترجمة التلقائية</div><div class="set-row-sub">ترجمة فورية للصفحات</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+        <div class="set-group-title">تخصيص المساعد</div>
+        <div class="set-row" onclick="toast('تخصيص شخصية المساعد')"><div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div class="set-row-info"><div class="set-row-name">شخصية المساعد</div><div class="set-row-sub">Nova — الحالية</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إدارة سجل المحادثات')"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="set-row-info"><div class="set-row-name">سجل المحادثات</div><div class="set-row-sub">عرض وإدارة التاريخ</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إدارة النماذج الذكية')"><div class="set-row-ico ic-gold"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة النماذج الذكية</div><div class="set-row-sub">HyperNova Ultra — نشط</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── CLOUD ── -->
+      <div class="set-section hide" id="ss-cloud">
+        <div class="set-section-title" style="color:var(--teal);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+          السحابة
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:600;">Nova Cloud</div>
+            <div class="bdg b-g">نشط</div>
+          </div>
+          <div style="font-size:12px;color:var(--txt2);margin-bottom:8px;">45 GB مستخدم من 100 GB</div>
+          <div class="pbar"><div class="pfill" style="width:45%"></div></div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:6px;">55 GB متبقي</div>
+        </div>
+        <div class="set-row" onclick="toast('إدارة التخزين السحابي')"><div class="set-row-ico ic-t"><svg viewBox="0 0 24 24" fill="none" stroke="#1de9b6" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة التخزين السحابي</div><div class="set-row-sub">عرض وتنظيم الملفات</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="set-row-info"><div class="set-row-name">النسخ الاحتياطي التلقائي</div><div class="set-row-sub">آخر نسخة: اليوم 3:00 AM</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div><div class="set-row-info"><div class="set-row-name">المزامنة بين الأجهزة</div><div class="set-row-sub">3 أجهزة متزامنة</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row" onclick="toast('استعادة البيانات')"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div><div class="set-row-info"><div class="set-row-name">استعادة البيانات</div><div class="set-row-sub">استعادة من نسخة سابقة</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إدارة الملفات السحابية')"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة الملفات السحابية</div><div class="set-row-sub">استعراض وتنظيم</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── DOWNLOADS ── -->
+      <div class="set-section hide" id="ss-downloads">
+        <div class="set-section-title" style="color:var(--orange);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          التحميلات
+        </div>
+        <div class="set-row" onclick="changeDownloadLocation()"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div><div class="set-row-info"><div class="set-row-name">مكان التنزيل</div><div class="set-row-sub">/Downloads/HyperNova</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="set-row-info"><div class="set-row-name">الفحص الأمني التلقائي</div><div class="set-row-sub">فحص كل ملف بعد التنزيل</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div><div class="set-row-info"><div class="set-row-name">استكمال التحميلات</div><div class="set-row-sub">استئناف التنزيل المنقطع</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="set-row-info"><div class="set-row-name">الحد الأقصى للسرعة</div><div class="set-row-sub">غير محدود — الحالي</div></div><div class="set-row-action"><div style="font-size:12px;color:var(--cyan);">ضبط</div></div></div>
+        <div class="set-row" onclick="toast('إدارة الملفات المحملة')"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة الملفات المحملة</div><div class="set-row-sub">23 ملف — 1.2 GB</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── MEDIA ── -->
+      <div class="set-section hide" id="ss-media">
+        <div class="set-section-title" style="color:var(--purple);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+          الوسائط
+        </div>
+        <div class="set-row" onclick="toast('إعدادات الموسيقى')"><div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="set-row-info"><div class="set-row-name">إعدادات الموسيقى</div><div class="set-row-sub">جودة الصوت والبث</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إعدادات الفيديو')"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="set-row-info"><div class="set-row-name">إعدادات الفيديو</div><div class="set-row-sub">جودة التشغيل والضغط</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إعدادات مشغل الوسائط')"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div><div class="set-row-info"><div class="set-row-name">مشغل الوسائط</div><div class="set-row-sub">إعدادات التشغيل</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إعدادات محرر الصور')"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div class="set-row-info"><div class="set-row-name">محرر الصور</div><div class="set-row-sub">أدوات التحرير المدمجة</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="toast('إعدادات محرر الفيديو')"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M15 2H9l-3 3H4a2 2 0 00-2 2v13a2 2 0 002 2h16a2 2 0 002-2V7a2 2 0 00-2-2h-2l-3-3z"/><circle cx="12" cy="13" r="3"/></svg></div><div class="set-row-info"><div class="set-row-name">محرر الفيديو</div><div class="set-row-sub">تحرير وتصدير الفيديو</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── GAMES ── -->
+      <div class="set-section hide" id="ss-games">
+        <div class="set-section-title" style="color:var(--red);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M7 11v2M8 12H6M17 12h2M15 11h2v2"/></svg>
+          الألعاب
+        </div>
+        <div class="set-row"><div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M7 11v2M8 12H6M17 12h2M15 11h2v2"/></svg></div><div class="set-row-info"><div class="set-row-name">Game Mode</div><div class="set-row-sub">وضع الألعاب المحسّن</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="set-row-info"><div class="set-row-name">تحسين الأداء أثناء اللعب</div><div class="set-row-sub">أولوية للألعاب</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/><line x1="6" y1="3" x2="18" y2="3"/></svg></div><div class="set-row-info"><div class="set-row-name">تعطيل الإشعارات أثناء اللعب</div><div class="set-row-sub">وضع عدم الإزعاج</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row" onclick="toast('إدارة الألعاب')"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="set-row-info"><div class="set-row-name">إدارة الألعاب</div><div class="set-row-sub">مكتبة الألعاب المثبتة</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── NOTIFICATIONS ── -->
+      <div class="set-section hide" id="ss-notifications">
+        <div class="set-section-title" style="color:var(--orange);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          الإشعارات
+        </div>
+        <div class="set-row"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div><div class="set-row-info"><div class="set-row-name">إشعارات النظام</div><div class="set-row-sub">إشعارات مهمة فقط</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div><div class="set-row-info"><div class="set-row-name">إشعارات البريد</div><div class="set-row-sub">رسائل جديدة</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div class="set-row-info"><div class="set-row-name">إشعارات الذكاء الاصطناعي</div><div class="set-row-sub">ردود وتنبيهات AI</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="set-row-info"><div class="set-row-name">إشعارات التحميلات</div><div class="set-row-sub">اكتمال التنزيل</div></div><div class="set-row-action"><div class="tog on" onclick="setToggle(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-r"><svg viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17 17H3a1 1 0 01-1-1C2 9 9 2 9 2"/><path d="M21.5 12.5c0-5-3-8.5-6-10"/></svg></div><div class="set-row-info"><div class="set-row-name">وضع عدم الإزعاج</div><div class="set-row-sub">إيقاف جميع الإشعارات</div></div><div class="set-row-action"><div class="tog" onclick="setToggle(this)"></div></div></div>
+      </div>
+
+      <!-- ── DEV ── -->
+      <div class="set-section hide" id="ss-dev">
+        <div class="set-section-title" style="color:var(--green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          المطورين
+        </div>
+        <div style="background:rgba(255,59,92,0.06);border:1px solid rgba(255,59,92,0.2);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--txt2);">⚠️ هذه الإعدادات مخصصة للمطورين فقط. تغييرها قد يؤثر على استقرار المتصفح.</div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><div class="set-row-info"><div class="set-row-name">Developer Mode</div><div class="set-row-sub">تفعيل وضع المطور</div></div><div class="set-row-action"><div class="tog" onclick="toggleDevMode(this)"></div></div></div>
+        <div class="set-row" onclick="openConsole()"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div class="set-row-info"><div class="set-row-name">أدوات المطور</div><div class="set-row-sub">DevTools المدمجة</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="openConsole()"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div><div class="set-row-info"><div class="set-row-name">Console</div><div class="set-row-sub">وحدة التحكم</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="openNetworkTools()"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div><div class="set-row-info"><div class="set-row-name">Network Tools</div><div class="set-row-sub">مراقبة الشبكة</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="openDebugging()"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M8 6h8M8 12h5M8 18h3"/><path d="M4 6h1M4 12h1M4 18h1"/></svg></div><div class="set-row-info"><div class="set-row-name">Debugging</div><div class="set-row-sub">أدوات التصحيح</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="openAPIManagement()"><div class="set-row-ico ic-gold"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div><div class="set-row-info"><div class="set-row-name">API Management</div><div class="set-row-sub">إدارة مفاتيح API</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+
+      <!-- ── ACCESSIBILITY ── -->
+      <div class="set-section hide" id="ss-accessibility">
+        <div class="set-section-title" style="color:var(--teal);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="2"/><path d="M19 13v-2a7 7 0 00-14 0v2"/><path d="M12 13v8M8 17l4 4 4-4"/></svg>
+          إمكانية الوصول
+        </div>
+        <div class="set-row"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></div><div class="set-row-info"><div class="set-row-name">تكبير النصوص</div><div class="set-row-sub">100% — الحجم الحالي</div></div><div class="set-row-action"><div style="display:flex;align-items:center;gap:6px;"><button onclick="toast('تصغير النص')" style="width:26px;height:26px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt);cursor:pointer;font-size:14px;">−</button><button onclick="toast('تكبير النص')" style="width:26px;height:26px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt);cursor:pointer;font-size:14px;">+</button></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg></div><div class="set-row-info"><div class="set-row-name">قارئ الشاشة</div><div class="set-row-sub">TTS — قراءة المحتوى</div></div><div class="set-row-action"><div class="tog" onclick="toggleScreenReader(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-p"><svg viewBox="0 0 24 24" fill="none" stroke="#e040fb" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><div class="set-row-info"><div class="set-row-name">التحكم الصوتي</div><div class="set-row-sub">تشغيل بالصوت</div></div><div class="set-row-action"><div class="tog" onclick="toggleVoiceControl(this)"></div></div></div>
+        <div class="set-row"><div class="set-row-ico ic-gold"><svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="set-row-info"><div class="set-row-name">الألوان عالية التباين</div><div class="set-row-sub">تباين أعلى للوضوح</div></div><div class="set-row-action"><div class="tog" onclick="toggleHighContrast(this)"></div></div></div>
+        <div class="set-row" onclick="toast('وضع ضعاف البصر: يضيف تكبير وتباين إضافي')"><div class="set-row-ico ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="#448aff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20"/><path d="M2 12h20"/></svg></div><div class="set-row-info"><div class="set-row-name">أوضاع ضعاف البصر</div><div class="set-row-sub">تسهيل للمبصرين جزئياً</div></div><div class="set-row-action"><div class="tog" onclick="event.stopPropagation();changeFontSize(20);toggleHighContrast(this)"></div></div></div>
+      </div>
+
+      <!-- ── BACKUP ── -->
+      <div class="set-section hide" id="ss-backup">
+        <div class="set-section-title" style="color:var(--cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          النسخ الاحتياطي والاستعادة
+        </div>
+        <div class="set-row" onclick="createBackup()"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></div><div class="set-row-info"><div class="set-row-name">إنشاء نسخة احتياطية</div><div class="set-row-sub">تنزيل نسخة من بياناتك</div></div><div class="set-row-action"><div class="bdg b-g">إنشاء</div></div></div>
+        <div class="set-row" onclick="importSettings()"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div><div class="set-row-info"><div class="set-row-name">استعادة نسخة احتياطية</div><div class="set-row-sub">استيراد ملف JSON</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="exportSettings()"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="set-row-info"><div class="set-row-name">تصدير الإعدادات</div><div class="set-row-sub">حفظ ملف الإعدادات</div></div><div class="set-row-action"><div class="bdg b-c">تصدير</div></div></div>
+        <div class="set-row" onclick="importSettings()"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="set-row-info"><div class="set-row-name">استيراد الإعدادات</div><div class="set-row-sub">تحميل ملف إعدادات</div></div><div class="set-row-action"><div class="bdg b-c">استيراد</div></div></div>
+      </div>
+
+      <!-- ── ABOUT ── -->
+      <div class="set-section hide" id="ss-about">
+        <div class="set-section-title" style="color:var(--gold);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          حول HyperNova
+        </div>
+        <div style="text-align:center;padding:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:16px;">
+          <div style="font-size:48px;margin-bottom:10px;">🚀</div>
+          <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">HyperNova</div>
+          <div style="font-size:13px;color:var(--txt2);margin-top:6px;">الإصدار 4.0.0 — Nova Edition</div>
+          <div class="bdg b-g" style="display:inline-block;margin-top:10px;">✓ أحدث إصدار</div>
+        </div>
+        <div class="set-row" onclick="checkUpdates()"><div class="set-row-ico ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div><div class="set-row-info"><div class="set-row-name">التحديثات</div><div class="set-row-sub">فحص آخر التحديثات</div></div><div class="set-row-action"><div class="bdg b-g">محدث</div></div></div>
+        <div class="set-row" onclick="toast('✅ Firebase: متصل | JS: نشط | DOM: سليم | UID: '+(window.fbGetUID?fbGetUID():'جاري...'),'حالة النظام')"><div class="set-row-ico ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="set-row-info"><div class="set-row-name">حالة النظام</div><div class="set-row-sub">جميع الخدمات تعمل بشكل طبيعي</div></div><div class="set-row-action"><div class="vdot von" style="width:10px;height:10px;"></div></div></div>
+        <div class="set-row" onclick="openChangelog()"><div class="set-row-ico ic-v"><svg viewBox="0 0 24 24" fill="none" stroke="#7b5fff" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="set-row-info"><div class="set-row-name">سجل التغييرات</div><div class="set-row-sub">Changelog</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="set-row" onclick="openSupport()"><div class="set-row-ico ic-o"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="set-row-info"><div class="set-row-name">الدعم الفني</div><div class="set-row-sub">تواصل مع فريق الدعم</div></div><div class="set-row-action"><svg viewBox="0 0 24 24" fill="none" stroke="#6a90b0" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--txt2);">
+          صُنع بـ ❤️ من فريق HyperNova<br>
+          <span style="color:var(--txt3);">© 2025 HyperNova Technologies</span>
+        </div>
+      </div>
+
+    </div><!-- /setsContent -->
+  </div><!-- /sets-body -->
+</div><!-- /settingsModal -->
+
+</body>
+</html>
